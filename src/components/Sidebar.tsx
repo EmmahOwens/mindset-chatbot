@@ -1,5 +1,5 @@
 
-import { Plus, MessageSquare, ArchiveX, Trash2, Menu } from 'lucide-react';
+import { Plus, MessageSquare, ArchiveX, Trash2, Menu, Archive, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useChat, Chat } from '@/context/ChatContext';
 import { 
@@ -11,10 +11,12 @@ import {
 import { toast } from 'sonner';
 
 export const Sidebar = () => {
-  const { chats, activeChat, createChat, setActiveChat, deleteChat, archiveChat } = useChat();
+  const { chats, activeChat, createChat, setActiveChat, deleteChat, archiveChat, unarchiveChat } = useChat();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   
   const activeChats = chats.filter(chat => !chat.archived);
+  const archivedChats = chats.filter(chat => chat.archived);
   
   const handleNewChat = () => {
     createChat();
@@ -33,6 +35,16 @@ export const Sidebar = () => {
     toast.success('Chat archived');
   };
   
+  const handleUnarchiveChat = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    unarchiveChat(id);
+    toast.success('Chat unarchived');
+  };
+  
+  const getMessageCount = (chat: Chat) => {
+    return chat.messages.length;
+  };
+  
   const formatTimestamp = (timestamp: number) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -46,7 +58,7 @@ export const Sidebar = () => {
   };
   
   return (
-    <aside className={`h-screen ${isCollapsed ? 'w-16' : 'w-72'} border-r border-border transition-all duration-300 flex flex-col bg-sidebar`}>
+    <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} border-r border-border transition-all duration-300 flex flex-col bg-sidebar`}>
       <div className="p-4 flex items-center justify-between border-b border-border">
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -108,35 +120,112 @@ export const Sidebar = () => {
                     </div>
                   </div>
                   
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="focus:outline-none" onClick={(e) => e.stopPropagation()}>
-                      <div className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-sidebar-accent">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="1" />
-                          <circle cx="19" cy="12" r="1" />
-                          <circle cx="5" cy="12" r="1" />
-                        </svg>
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={(e) => handleArchiveChat(chat.id, e as unknown as React.MouseEvent)}>
-                        <ArchiveX className="h-4 w-4 mr-2" />
-                        Archive Chat
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className="text-destructive focus:text-destructive" 
-                        onClick={(e) => handleDeleteChat(chat.id, e as unknown as React.MouseEvent)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Chat
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="flex items-center">
+                    <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full mr-2">
+                      {getMessageCount(chat)}
+                    </span>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="focus:outline-none" onClick={(e) => e.stopPropagation()}>
+                        <div className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-sidebar-accent">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="1" />
+                            <circle cx="19" cy="12" r="1" />
+                            <circle cx="5" cy="12" r="1" />
+                          </svg>
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => handleArchiveChat(chat.id, e as unknown as React.MouseEvent)}>
+                          <ArchiveX className="h-4 w-4 mr-2" />
+                          Archive Chat
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive focus:text-destructive" 
+                          onClick={(e) => handleDeleteChat(chat.id, e as unknown as React.MouseEvent)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Chat
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               )}
             </div>
           ))}
         </div>
+        
+        {!isCollapsed && archivedChats.length > 0 && (
+          <div className="mt-6">
+            <button 
+              onClick={() => setShowArchived(!showArchived)}
+              className="flex items-center w-full text-xs uppercase tracking-wider text-muted-foreground mb-3 ml-2"
+            >
+              {showArchived ? <ChevronDown className="h-3 w-3 mr-1" /> : <ChevronRight className="h-3 w-3 mr-1" />}
+              Archived Chats ({archivedChats.length})
+            </button>
+            
+            {showArchived && (
+              <div className="space-y-2">
+                {archivedChats.map(chat => (
+                  <div
+                    key={chat.id}
+                    onClick={() => setActiveChat(chat.id)}
+                    className={`cursor-pointer transition-all duration-200 ${
+                      activeChat === chat.id 
+                        ? 'neumorph-pressed text-primary'
+                        : 'neumorph-flat hover:scale-[0.98] text-sidebar-foreground'
+                    } p-3 rounded-xl`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Archive className="h-5 w-5 flex-shrink-0" />
+                        <div className="overflow-hidden">
+                          <p className="truncate font-medium">{chat.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatTimestamp(chat.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full mr-2">
+                          {getMessageCount(chat)}
+                        </span>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="focus:outline-none" onClick={(e) => e.stopPropagation()}>
+                            <div className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-sidebar-accent">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="1" />
+                                <circle cx="19" cy="12" r="1" />
+                                <circle cx="5" cy="12" r="1" />
+                              </svg>
+                            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={(e) => handleUnarchiveChat(chat.id, e as unknown as React.MouseEvent)}>
+                              <Archive className="h-4 w-4 mr-2" />
+                              Unarchive Chat
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive" 
+                              onClick={(e) => handleDeleteChat(chat.id, e as unknown as React.MouseEvent)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Chat
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

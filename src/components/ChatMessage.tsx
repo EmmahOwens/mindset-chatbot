@@ -1,33 +1,42 @@
 
 import { Message } from '@/context/ChatContext';
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
-type ChatMessageProps = {
+interface ChatMessageProps {
   message: Message;
   isLast: boolean;
-};
+}
 
 export const ChatMessage = ({ message, isLast }: ChatMessageProps) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const [showTimestamps, setShowTimestamps] = useState(true);
   
-  // Scroll to the message if it's the last one
   useEffect(() => {
-    if (isLast && ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth' });
+    const settings = localStorage.getItem('chatSettings');
+    if (settings) {
+      const parsedSettings = JSON.parse(settings);
+      setShowTimestamps(parsedSettings.showTimestamps ?? true);
     }
-  }, [isLast]);
+  }, []);
   
-  const isBot = message.sender === 'bot';
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
   
   return (
     <div 
-      ref={ref}
-      className={`flex ${isBot ? 'justify-start' : 'justify-end'} mb-4 animate-fade-in`}
+      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 animate-fade-in`}
     >
-      <div 
-        className={`${isBot ? 'chat-bubble-bot animate-slide-in-left' : 'chat-bubble-user animate-slide-in-right'}`}
-      >
+      <div className={`
+        ${message.sender === 'bot' ? 'chat-bubble-bot' : 'chat-bubble-user'}
+        ${isLast && message.sender === 'bot' ? 'animate-pulse-slow' : ''}
+      `}>
         <p>{message.content}</p>
+        {showTimestamps && (
+          <div className={`text-xs mt-1 opacity-70 flex justify-end ${message.sender === 'user' ? 'text-white/70' : 'text-foreground/70'}`}>
+            {formatTime(message.timestamp)}
+          </div>
+        )}
       </div>
     </div>
   );
