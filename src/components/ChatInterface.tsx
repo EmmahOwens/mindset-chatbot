@@ -41,8 +41,8 @@ export const ChatInterface = () => {
         )}
       </div>
       
-      {/* Show quick responses when there's at least one bot message */}
-      {activeMessages.some(msg => msg.sender === 'bot') && activeMessages.length <= 2 && (
+      {/* Show quick responses when there's at least one message */}
+      {activeMessages.length > 0 && (
         <div className="px-4">
           <QuickResponses />
         </div>

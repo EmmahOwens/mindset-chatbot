@@ -22,36 +22,35 @@ serve(async (req) => {
       throw new Error('Missing Gemini API key')
     }
 
-    // Format messages for Gemini (convert from chat format to prompt)
-    const conversationHistory = messages.map((msg: any) => ({
-      role: msg.sender === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }],
-    }))
+    // Format the conversation history for Gemini
+    const conversationText = messages.map((msg: any) => 
+      `${msg.sender === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+    ).join('\n\n');
+    
+    // Add system instructions
+    const systemPrompt = `You are a helpful, empathetic mental health companion chatbot. 
+    Respond to the following conversation, focusing on the last user message. 
+    Be supportive, thoughtful, and provide meaningful guidance.
+    
+    Previous conversation:
+    ${conversationText}
+    
+    Your response should be helpful, supportive, and tailored to continuing this conversation.`;
 
     // Initialize the Gemini API
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',  // Updated to a supported model
       generationConfig: {
         maxOutputTokens: maxTokens,
         temperature: 0.7,
       },
     })
 
-    // Create a chat and send the conversation history
-    const chat = model.startChat({
-      history: conversationHistory.slice(0, -1), // All except the last message
-      generationConfig: {
-        maxOutputTokens: maxTokens,
-      },
-    })
-
-    // Get the last user message to send
-    const lastMessage = conversationHistory[conversationHistory.length - 1]
-    console.log('Sending message to Gemini:', lastMessage)
+    console.log('Sending prompt to Gemini:', systemPrompt)
 
     // Generate response from Gemini
-    const result = await chat.sendMessage(lastMessage.parts[0].text)
+    const result = await model.generateContent(systemPrompt)
     const response = result.response
     const text = response.text()
 
