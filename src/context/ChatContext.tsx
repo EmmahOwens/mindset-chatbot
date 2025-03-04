@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 
 export type Message = {
   id: string;
@@ -39,6 +41,18 @@ type ChatContextType = {
   deleteChat: (chatId: string) => void;
   archiveChat: (chatId: string) => void;
   unarchiveChat: (chatId: string) => void;
+};
+
+type ChatSettings = {
+  showTimestamps: boolean;
+  friendlyTone: boolean;
+  responseLength: number;
+};
+
+const defaultSettings: ChatSettings = {
+  showTimestamps: true,
+  friendlyTone: true,
+  responseLength: 400,
 };
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -86,14 +100,17 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       };
     }
     
-    case 'DELETE_CHAT':
+    case 'DELETE_CHAT': {
+      const filteredChats = state.chats.filter(chat => chat.id !== action.payload.chatId);
+      
       return {
         ...state,
-        chats: state.chats.filter(chat => chat.id !== action.payload.chatId),
-        activeChat: state.activeChat === action.payload.chatId 
-          ? (state.chats.find(chat => chat.id !== action.payload.chatId)?.id || null)
+        chats: filteredChats,
+        activeChat: state.activeChat === action.payload.chatId
+          ? (filteredChats.find(chat => !chat.archived)?.id || null)
           : state.activeChat,
       };
+    }
       
     case 'ARCHIVE_CHAT':
       return {
@@ -119,7 +136,9 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return {
         ...state,
         chats: action.payload.chats,
-        activeChat: action.payload.chats.length > 0 ? action.payload.chats[0].id : null,
+        activeChat: action.payload.chats.length > 0 
+          ? (action.payload.chats.find(chat => !chat.archived)?.id || action.payload.chats[0].id) 
+          : null,
       };
       
     default:
@@ -134,6 +153,8 @@ const initialState: ChatState = {
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(chatReducer, initialState);
+  const [settings, setSettings] = useState<ChatSettings>(defaultSettings);
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
   
   useEffect(() => {
     const savedChats = localStorage.getItem('chats');
@@ -158,11 +179,23 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }, 500);
     }
+    
+    // Load settings
+    const savedSettings = localStorage.getItem('chatSettings');
+    if (savedSettings) {
+      setSettings(JSON.parse(savedSettings));
+    } else {
+      localStorage.setItem('chatSettings', JSON.stringify(defaultSettings));
+    }
   }, []);
   
   useEffect(() => {
     localStorage.setItem('chats', JSON.stringify(state.chats));
   }, [state.chats]);
+  
+  useEffect(() => {
+    localStorage.setItem('chatSettings', JSON.stringify(settings));
+  }, [settings]);
   
   const generateId = () => {
     return Math.random().toString(36).substring(2, 15);
@@ -198,7 +231,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'SET_ACTIVE_CHAT', payload: { chatId } });
   };
   
-  const addMessage = (message: Pick<Message, 'content' | 'sender'>) => {
+  const addMessage = async (message: Pick<Message, 'content' | 'sender'>) => {
     if (!state.activeChat) return;
     
     const newMessage: Message = {
@@ -216,16 +249,38 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     
     if (message.sender === 'user') {
-      setTimeout(() => {
-        const botResponses = [
-          "Thank you for sharing that with me. How does this situation make you feel?",
-          "I understand this can be challenging. Would you like to talk more about it?",
-          "I'm here to support you. Have you tried any coping strategies that have helped in the past?",
-          "That sounds difficult. Remember that it's okay to feel this way, and your feelings are valid.",
-          "I appreciate you opening up. Would it help to break down this situation into smaller parts?",
-        ];
+      setIsLoadingResponse(true);
+      
+      try {
+        // Prepare the conversation history
+        const chat = state.chats.find(c => c.id === state.activeChat);
+        if (!chat) throw new Error("Chat not found");
         
-        const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
+        const messageHistory = [...chat.messages, newMessage];
+        
+        // Call the Gemini API through our edge function
+        const { data, error } = await supabase.functions.invoke('chat-gemini', {
+          body: { 
+            messages: messageHistory,
+            maxTokens: settings.responseLength
+          }
+        });
+        
+        if (error) throw error;
+        
+        // Add some friendliness if that setting is enabled
+        let responseContent = data.content;
+        if (settings.friendlyTone && Math.random() > 0.7) {
+          const friendlyPhrases = [
+            "I'm here for you. ",
+            "I understand how you feel. ",
+            "That's a great point. ",
+            "I appreciate you sharing that with me. ",
+            "Thank you for opening up. "
+          ];
+          const randomPhrase = friendlyPhrases[Math.floor(Math.random() * friendlyPhrases.length)];
+          responseContent = randomPhrase + responseContent;
+        }
         
         dispatch({
           type: 'ADD_MESSAGE',
@@ -233,22 +288,58 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             chatId: state.activeChat,
             message: {
               id: generateId(),
-              content: randomResponse,
+              content: responseContent,
               sender: 'bot',
               timestamp: Date.now(),
             },
           },
         });
-      }, 1000);
+      } catch (error) {
+        console.error("Error getting response:", error);
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: {
+            chatId: state.activeChat,
+            message: {
+              id: generateId(),
+              content: "I'm sorry, I encountered an error generating a response. Please try again later.",
+              sender: 'bot',
+              timestamp: Date.now(),
+            },
+          },
+        });
+      } finally {
+        setIsLoadingResponse(false);
+      }
     }
   };
   
   const deleteChat = (chatId: string) => {
     dispatch({ type: 'DELETE_CHAT', payload: { chatId } });
+    
+    // Check if we need to create a new chat (if all chats were deleted or all remaining are archived)
+    const chatsAfterDeletion = state.chats.filter(chat => chat.id !== chatId);
+    const nonArchivedChats = chatsAfterDeletion.filter(chat => !chat.archived);
+    
+    if (nonArchivedChats.length === 0) {
+      // Create a new chat if there are no non-archived chats left
+      createChat();
+    }
   };
   
   const archiveChat = (chatId: string) => {
     dispatch({ type: 'ARCHIVE_CHAT', payload: { chatId } });
+    
+    // If the archived chat was active, set another chat as active
+    if (state.activeChat === chatId) {
+      const nonArchivedChats = state.chats.filter(chat => !chat.archived && chat.id !== chatId);
+      if (nonArchivedChats.length > 0) {
+        setActiveChat(nonArchivedChats[0].id);
+      } else {
+        // Create a new chat if all chats are archived
+        createChat();
+      }
+    }
   };
   
   const unarchiveChat = (chatId: string) => {
