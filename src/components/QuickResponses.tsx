@@ -1,15 +1,32 @@
 
 import { useChat } from '@/context/ChatContext';
-
-const responses = [
-  "I've been feeling overwhelmed lately",
-  "Something happened at work today",
-  "My sleep has been affected",
-  "I'm trying to practice self-care"
-];
+import { useEffect, useState } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 
 export const QuickResponses = () => {
   const { addMessage } = useChat();
+  const [responses, setResponses] = useState<string[]>([
+    "I've been feeling overwhelmed lately",
+    "Something happened at work today",
+    "My sleep has been affected",
+    "I'm trying to practice self-care"
+  ]);
+  
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('chat-suggestions');
+        if (error) throw error;
+        if (data.suggestions) {
+          setResponses(data.suggestions);
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      }
+    };
+
+    fetchSuggestions();
+  }, []);
   
   const handleQuickResponse = (response: string) => {
     addMessage({
