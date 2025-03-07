@@ -44,7 +44,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md rounded-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold">Chat Settings</DialogTitle>

@@ -17,10 +17,10 @@ export const ChatInterface = () => {
   }, [activeMessages]);
   
   return (
-    <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background/80">
+    <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background/80 rounded-2xl">
       <div 
         ref={chatContainerRef}
-        className="flex-1 p-6 overflow-y-auto scrollbar-thin"
+        className="flex-1 p-6 overflow-y-auto scrollbar-thin rounded-t-2xl"
       >
         {activeMessages.length > 0 ? (
           <div className="max-w-3xl mx-auto w-full">
@@ -54,7 +54,7 @@ export const ChatInterface = () => {
       
       {/* Show quick responses when there's at least one message */}
       {activeMessages.length > 0 && (
-        <div className="px-4 backdrop-blur-sm bg-background/70 border-t border-border">
+        <div className="px-4 backdrop-blur-sm bg-background/70 border-t border-border rounded-tl-xl rounded-tr-xl">
           <QuickResponses />
         </div>
       )}

@@ -45,7 +45,7 @@ export const ChatMessage = ({ message, isLast }: ChatMessageProps) => {
           ? 'chat-bubble-bot shadow-md' 
           : 'chat-bubble-user shadow-md'}
         ${isLast && message.sender === 'bot' ? 'typing-indicator' : ''}
-        max-w-[75%] sm:max-w-[70%] md:max-w-[65%]
+        max-w-[75%] sm:max-w-[70%] md:max-w-[65%] rounded-2xl
       `}>
         <p className="whitespace-pre-wrap">{message.content}</p>
         {showTimestamps && (
