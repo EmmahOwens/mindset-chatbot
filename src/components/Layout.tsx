@@ -15,7 +15,7 @@ export const Layout = () => {
       {showSidebar && <Sidebar />}
       
       <div className={`flex-1 flex flex-col ${showSidebar ? 'md:ml-72' : ''}`}>
-        <header className="h-16 border-b border-border flex items-center justify-between gap-2 px-4 bg-background z-20">
+        <header className="h-16 border-b border-border/60 backdrop-blur-sm flex items-center justify-between gap-2 px-4 bg-background/80 z-20 fixed top-0 left-0 right-0 ml-0 md:ml-72">
           {!showSidebar && (
             <button
               onClick={() => setShowSidebar(true)}
@@ -25,7 +25,9 @@ export const Layout = () => {
             </button>
           )}
           
-          <div className="flex-1 md:flex-none"></div>
+          <div className="flex-1 md:flex-none flex items-center">
+            <h1 className="text-lg font-semibold text-foreground ml-2">AI Chat Assistant</h1>
+          </div>
           
           <div className="flex items-center gap-2">
             <button 
@@ -38,7 +40,9 @@ export const Layout = () => {
           </div>
         </header>
         
-        <ChatInterface />
+        <div className="pt-16 flex-1 flex flex-col h-[calc(100vh-4rem)]">
+          <ChatInterface />
+        </div>
         
         <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       </div>
@@ -46,7 +50,7 @@ export const Layout = () => {
       {/* Overlay for mobile when sidebar is open */}
       {showSidebar && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/20 z-20"
+          className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-20"
           onClick={() => setShowSidebar(false)}
         >
           <button 

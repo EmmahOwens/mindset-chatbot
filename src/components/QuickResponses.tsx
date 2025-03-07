@@ -3,6 +3,7 @@ import { useChat } from '@/context/ChatContext';
 import { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Sparkles } from 'lucide-react';
 
 export const QuickResponses = () => {
   const { addMessage, activeMessages } = useChat();
@@ -50,18 +51,35 @@ export const QuickResponses = () => {
   };
   
   return (
-    <div className="flex flex-wrap gap-2 justify-center mb-8 mt-2">
-      {responses.map((response, index) => (
-        <button
-          key={index}
-          onClick={() => handleQuickResponse(response)}
-          className="quick-response-btn animate-fade-in"
-          style={{ animationDelay: `${index * 100}ms` }}
-          disabled={loading}
-        >
-          {response}
-        </button>
-      ))}
+    <div className="py-4">
+      <div className="flex items-center justify-center gap-2 mb-3">
+        <Sparkles size={16} className="text-primary" />
+        <p className="text-sm text-muted-foreground font-medium">Suggested responses</p>
+      </div>
+      <div className="flex flex-wrap gap-2 justify-center">
+        {loading ? (
+          // Show skeleton loaders while loading
+          Array(4).fill(0).map((_, index) => (
+            <div 
+              key={index}
+              className="h-10 bg-background/50 animate-pulse rounded-full px-6"
+              style={{ width: `${Math.floor(Math.random() * 40) + 100}px` }}
+            />
+          ))
+        ) : (
+          responses.map((response, index) => (
+            <button
+              key={index}
+              onClick={() => handleQuickResponse(response)}
+              className="quick-response-btn animate-fade-in text-sm"
+              style={{ animationDelay: `${index * 100}ms` }}
+              disabled={loading}
+            >
+              {response}
+            </button>
+          ))
+        )}
+      </div>
     </div>
   );
 };

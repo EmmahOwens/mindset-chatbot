@@ -21,8 +21,8 @@ export const ChatInput = () => {
   };
   
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t border-border">
-      <div className="relative neumorph-flat p-1 rounded-full">
+    <form onSubmit={handleSubmit} className="p-5 border-t border-border backdrop-blur-sm bg-background/80">
+      <div className="relative neumorph-flat p-1 rounded-full max-w-3xl mx-auto">
         <input
           type="text"
           value={message}
@@ -33,7 +33,7 @@ export const ChatInput = () => {
         <button
           type="submit"
           disabled={message.trim() === ''}
-          className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95"
         >
           <Send className="h-5 w-5" />
         </button>
