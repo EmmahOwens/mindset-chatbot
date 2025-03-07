@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -50,9 +49,61 @@ type ChatSettings = {
 };
 
 const defaultSettings: ChatSettings = {
-  showTimestamps: true,
+  showTimestamps: false,
   friendlyTone: true,
   responseLength: 400,
+};
+
+const addEmojisToResponse = (content: string) => {
+  const emotionEmojis: Record<string, string[]> = {
+    happy: ['😊', '😄', '🙂', '😁', '🌟'],
+    sad: ['😔', '🥺', '😢', '💔', '😞'],
+    angry: ['😠', '😡', '🔥', '💢'],
+    surprise: ['😮', '😲', '😯', '🤯', '😳'],
+    confused: ['🤔', '😕', '❓', '🧐'],
+    love: ['❤️', '💕', '🥰', '💗', '💓'],
+    support: ['👍', '🤝', '💪', '🙌', '🫂'],
+    agreement: ['👌', '✅', '👍', '💯'],
+    congratulation: ['🎉', '🎊', '🏆', '👏', '✨'],
+    thoughtful: ['💭', '🧠', '💫', '✨'],
+    health: ['🧘‍♀️', '💝', '🌱', '🌿', '💆‍♂️'],
+    relieved: ['😌', '🙏', '✨', '💫'],
+    hopeful: ['🌈', '⭐', '✨', '🌟', '💫'],
+    calm: ['😌', '🧘‍♀️', '🌊', '🍃'],
+    empathy: ['🫂', '💕', '👂', '🤲'],
+    encouragement: ['💪', '🚀', '🔥', '⚡', '✨'],
+    gratitude: ['🙏', '💖', '✨', '🌟'],
+  };
+  
+  let matchedEmojis: string[] = [];
+  Object.entries(emotionEmojis).forEach(([emotion, emojis]) => {
+    const emotionRegex = new RegExp(`\\b${emotion}|${emotion}s|${emotion}ing\\b`, 'i');
+    if (content.toLowerCase().match(emotionRegex)) {
+      matchedEmojis.push(...emojis);
+    }
+  });
+  
+  if (matchedEmojis.length === 0) {
+    matchedEmojis = [...emotionEmojis.support, ...emotionEmojis.thoughtful];
+  }
+  
+  const randomEmoji1 = matchedEmojis[Math.floor(Math.random() * matchedEmojis.length)];
+  const randomEmoji2 = matchedEmojis[Math.floor(Math.random() * matchedEmojis.length)];
+  
+  let enhancedContent = `${randomEmoji1} ${content}`;
+  
+  if (content.length > 100 && Math.random() > 0.5) {
+    const sentences = content.split(/(?<=[.!?])\s+/);
+    if (sentences.length > 1) {
+      const middleIndex = Math.floor(sentences.length / 2);
+      sentences[middleIndex] = `${sentences[middleIndex]} ${randomEmoji2}`;
+      enhancedContent = sentences.join(' ');
+    } else {
+      enhancedContent = `${enhancedContent} ${randomEmoji2}`;
+    }
+  }
+  
+  return enhancedContent;
 };
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -90,7 +141,6 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
             ? {
                 ...chat,
                 messages: [...chat.messages, message],
-                // Update title to reflect first user message if it's the first one
                 title: chat.title === 'New Chat' && message.sender === 'user' 
                   ? message.content.slice(0, 20) + (message.content.length > 20 ? '...' : '')
                   : chat.title
@@ -171,7 +221,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             chatId: defaultChatId,
             message: {
               id: generateId(),
-              content: "Hi, I'm your mental health companion. How are you feeling today? I'm here to listen and support you.",
+              content: "👋 Hi, I'm your mental health companion. How are you feeling today? I'm here to listen and support you. ✨",
               sender: 'bot',
               timestamp: Date.now(),
             },
@@ -180,7 +230,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }, 500);
     }
     
-    // Load settings
     const savedSettings = localStorage.getItem('chatSettings');
     if (savedSettings) {
       setSettings(JSON.parse(savedSettings));
@@ -216,7 +265,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           chatId: newChatId,
           message: {
             id: generateId(),
-            content: "Hi, I'm your mental health companion. How are you feeling today? I'm here to listen and support you.",
+            content: "👋 Hi, I'm your mental health companion. How are you feeling today? I'm here to listen and support you. ✨",
             sender: 'bot',
             timestamp: Date.now(),
           },
@@ -252,13 +301,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoadingResponse(true);
       
       try {
-        // Prepare the conversation history
         const chat = state.chats.find(c => c.id === state.activeChat);
         if (!chat) throw new Error("Chat not found");
         
         const messageHistory = [...chat.messages, newMessage];
         
-        // Call the Gemini API through our edge function
         const { data, error } = await supabase.functions.invoke('chat-gemini', {
           body: { 
             messages: messageHistory,
@@ -268,19 +315,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (error) throw error;
         
-        // Add some friendliness if that setting is enabled
         let responseContent = data.content;
-        if (settings.friendlyTone && Math.random() > 0.7) {
-          const friendlyPhrases = [
-            "I'm here for you. ",
-            "I understand how you feel. ",
-            "That's a great point. ",
-            "I appreciate you sharing that with me. ",
-            "Thank you for opening up. "
-          ];
-          const randomPhrase = friendlyPhrases[Math.floor(Math.random() * friendlyPhrases.length)];
-          responseContent = randomPhrase + responseContent;
-        }
+        responseContent = addEmojisToResponse(responseContent);
         
         dispatch({
           type: 'ADD_MESSAGE',
@@ -302,7 +338,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             chatId: state.activeChat,
             message: {
               id: generateId(),
-              content: "I'm sorry, I encountered an error generating a response. Please try again later.",
+              content: "😔 I'm sorry, I encountered an error generating a response. Please try again later. 🙏",
               sender: 'bot',
               timestamp: Date.now(),
             },
@@ -317,12 +353,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteChat = (chatId: string) => {
     dispatch({ type: 'DELETE_CHAT', payload: { chatId } });
     
-    // Check if we need to create a new chat (if all chats were deleted or all remaining are archived)
     const chatsAfterDeletion = state.chats.filter(chat => chat.id !== chatId);
     const nonArchivedChats = chatsAfterDeletion.filter(chat => !chat.archived);
     
     if (nonArchivedChats.length === 0) {
-      // Create a new chat if there are no non-archived chats left
       createChat();
     }
   };
@@ -330,13 +364,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const archiveChat = (chatId: string) => {
     dispatch({ type: 'ARCHIVE_CHAT', payload: { chatId } });
     
-    // If the archived chat was active, set another chat as active
     if (state.activeChat === chatId) {
       const nonArchivedChats = state.chats.filter(chat => !chat.archived && chat.id !== chatId);
       if (nonArchivedChats.length > 0) {
         setActiveChat(nonArchivedChats[0].id);
       } else {
-        // Create a new chat if all chats are archived
         createChat();
       }
     }

@@ -1,7 +1,11 @@
 
-import { Plus, MessageSquare, ArchiveX, Trash2, Menu, Archive, ChevronDown, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
 import { useChat, Chat } from '@/context/ChatContext';
+import { useState } from 'react';
+import { 
+  Plus, MessageSquare, Settings, 
+  Trash2, ChevronDown, ChevronRight, 
+  Archive, ArchiveX, Sparkles
+} from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -51,26 +55,26 @@ export const Sidebar = () => {
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
     if (diffInHours < 24) {
-      return `in about ${diffInHours} hours`;
+      return `${diffInHours}h ago`;
     } else {
-      return date.toLocaleDateString();
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     }
   };
   
   return (
-    <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} border-r border-border transition-all duration-300 flex flex-col bg-sidebar`}>
-      <div className="p-4 flex items-center justify-between border-b border-border">
+    <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} transition-all duration-300 flex flex-col bg-gradient-to-b from-primary/5 to-background`}>
+      <div className="p-4 flex items-center justify-between border-b border-border/40">
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-10 w-10 neumorph-flat flex items-center justify-center rounded-full"
+          className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/90 flex items-center justify-center shadow-md hover:bg-primary/10 transition-all duration-200"
         >
-          <Menu className="h-5 w-5" />
+          <Settings className="h-5 w-5 text-primary" />
         </button>
         
         {!isCollapsed && (
           <button
             onClick={handleNewChat}
-            className="flex items-center justify-center gap-2 p-2 px-4 neumorph-flat hover:neumorph-pressed transition-all duration-300 rounded-full text-sidebar-primary"
+            className="flex items-center justify-center gap-2 py-2 px-4 bg-primary/90 hover:bg-primary transition-all duration-300 rounded-full text-white shadow-md"
           >
             <Plus className="h-5 w-5" />
             <span className="font-medium">New Chat</span>
@@ -80,7 +84,7 @@ export const Sidebar = () => {
         {isCollapsed && (
           <button
             onClick={handleNewChat}
-            className="h-10 w-10 neumorph-flat flex items-center justify-center rounded-full text-sidebar-primary"
+            className="h-10 w-10 bg-primary/90 hover:bg-primary flex items-center justify-center rounded-full text-white shadow-md transition-all duration-200"
             title="New Chat"
           >
             <Plus className="h-5 w-5" />
@@ -88,9 +92,12 @@ export const Sidebar = () => {
         )}
       </div>
       
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-3 scrollbar-thin">
         {!isCollapsed && activeChats.length > 0 && (
-          <h2 className="text-xs uppercase tracking-wider text-muted-foreground mb-3 ml-2">Active Chats</h2>
+          <h2 className="text-xs uppercase tracking-wider text-primary font-semibold mb-3 ml-2 flex items-center">
+            <Sparkles className="h-3 w-3 mr-1" />
+            Active Chats
+          </h2>
         )}
         
         <div className="space-y-2">
@@ -100,9 +107,9 @@ export const Sidebar = () => {
               onClick={() => setActiveChat(chat.id)}
               className={`cursor-pointer transition-all duration-200 ${
                 activeChat === chat.id 
-                  ? 'neumorph-pressed text-primary'
-                  : 'neumorph-flat hover:scale-[0.98] text-sidebar-foreground'
-              } ${isCollapsed ? 'p-2 rounded-full' : 'p-3 rounded-xl'}`}
+                  ? 'bg-primary/15 border-primary/30 text-primary shadow-sm'
+                  : 'bg-white/60 dark:bg-gray-800/30 hover:bg-white/80 dark:hover:bg-gray-800/40 text-foreground shadow-sm border-transparent'
+              } ${isCollapsed ? 'p-2 rounded-full' : 'p-3 rounded-xl'} border`}
             >
               {isCollapsed ? (
                 <div className="flex justify-center">
@@ -111,7 +118,11 @@ export const Sidebar = () => {
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <MessageSquare className="h-5 w-5 flex-shrink-0" />
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                      activeChat === chat.id ? 'bg-primary/20' : 'bg-primary/10'
+                    }`}>
+                      <MessageSquare className={`h-4 w-4 ${activeChat === chat.id ? 'text-primary' : 'text-primary/70'}`} />
+                    </div>
                     <div className="overflow-hidden">
                       <p className="truncate font-medium">{chat.title}</p>
                       <p className="text-xs text-muted-foreground">
@@ -127,7 +138,7 @@ export const Sidebar = () => {
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger className="focus:outline-none" onClick={(e) => e.stopPropagation()}>
-                        <div className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-sidebar-accent">
+                        <div className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-primary/10">
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="12" r="1" />
                             <circle cx="19" cy="12" r="1" />
@@ -160,7 +171,7 @@ export const Sidebar = () => {
           <div className="mt-6">
             <button 
               onClick={() => setShowArchived(!showArchived)}
-              className="flex items-center w-full text-xs uppercase tracking-wider text-muted-foreground mb-3 ml-2"
+              className="flex items-center w-full text-xs uppercase tracking-wider text-muted-foreground mb-3 ml-2 font-semibold"
             >
               {showArchived ? <ChevronDown className="h-3 w-3 mr-1" /> : <ChevronRight className="h-3 w-3 mr-1" />}
               Archived Chats ({archivedChats.length})
@@ -174,13 +185,17 @@ export const Sidebar = () => {
                     onClick={() => setActiveChat(chat.id)}
                     className={`cursor-pointer transition-all duration-200 ${
                       activeChat === chat.id 
-                        ? 'neumorph-pressed text-primary'
-                        : 'neumorph-flat hover:scale-[0.98] text-sidebar-foreground'
-                    } p-3 rounded-xl`}
+                        ? 'bg-primary/15 border-primary/30 text-primary shadow-sm'
+                        : 'bg-white/60 dark:bg-gray-800/30 hover:bg-white/80 dark:hover:bg-gray-800/40 text-foreground shadow-sm border-transparent'
+                    } p-3 rounded-xl border`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Archive className="h-5 w-5 flex-shrink-0" />
+                        <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                          activeChat === chat.id ? 'bg-primary/20' : 'bg-primary/10'
+                        }`}>
+                          <Archive className={`h-4 w-4 ${activeChat === chat.id ? 'text-primary' : 'text-primary/70'}`} />
+                        </div>
                         <div className="overflow-hidden">
                           <p className="truncate font-medium">{chat.title}</p>
                           <p className="text-xs text-muted-foreground">
@@ -196,7 +211,7 @@ export const Sidebar = () => {
                         
                         <DropdownMenu>
                           <DropdownMenuTrigger className="focus:outline-none" onClick={(e) => e.stopPropagation()}>
-                            <div className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-sidebar-accent">
+                            <div className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-primary/10">
                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="1" />
                                 <circle cx="19" cy="12" r="1" />
