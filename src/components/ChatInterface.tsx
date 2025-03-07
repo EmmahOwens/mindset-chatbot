@@ -3,11 +3,13 @@ import { useChat } from '@/context/ChatContext';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { QuickResponses } from './QuickResponses';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 
 export const ChatInterface = () => {
   const { activeMessages, activeChat } = useChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButtons, setShowScrollButtons] = useState(false);
   
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -16,8 +18,43 @@ export const ChatInterface = () => {
     }
   }, [activeMessages]);
   
+  // Show scroll buttons when chat is scrollable
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (chatContainerRef.current) {
+        const { scrollHeight, clientHeight } = chatContainerRef.current;
+        setShowScrollButtons(scrollHeight > clientHeight);
+      }
+    };
+    
+    checkScrollable();
+    window.addEventListener('resize', checkScrollable);
+    
+    return () => {
+      window.removeEventListener('resize', checkScrollable);
+    };
+  }, [activeMessages]);
+  
+  const scrollToTop = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+  
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+  
   return (
-    <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background/80 rounded-2xl">
+    <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background/80 rounded-2xl relative">
       <div 
         ref={chatContainerRef}
         className="flex-1 p-6 overflow-y-auto scrollbar-thin rounded-t-2xl"
@@ -51,6 +88,26 @@ export const ChatInterface = () => {
           </div>
         )}
       </div>
+      
+      {/* Scroll navigation buttons */}
+      {showScrollButtons && activeMessages.length > 0 && (
+        <div className="absolute right-4 flex flex-col gap-2">
+          <button 
+            onClick={scrollToTop}
+            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/80 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp className="h-5 w-5" />
+          </button>
+          <button 
+            onClick={scrollToBottom}
+            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/80 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
+            aria-label="Scroll to bottom"
+          >
+            <ArrowDown className="h-5 w-5" />
+          </button>
+        </div>
+      )}
       
       {/* Show quick responses when there's at least one message */}
       {activeMessages.length > 0 && (

@@ -25,9 +25,7 @@ export const Layout = () => {
             </button>
           )}
           
-          <div className="flex-1 md:flex-none flex items-center">
-            <h1 className="text-lg font-semibold text-foreground ml-2">AI Chat Assistant</h1>
-          </div>
+          <div className="flex-1"></div>
           
           <div className="flex items-center gap-2">
             <button 

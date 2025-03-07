@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -19,7 +20,6 @@ interface SettingsDialogProps {
 
 export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [responseLength, setResponseLength] = useState(150);
-  const [showTimestamps, setShowTimestamps] = useState(true);
   const [useFriendlyTone, setUseFriendlyTone] = useState(true);
   
   // Load settings from localStorage on initial render
@@ -28,7 +28,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
     if (settings) {
       const parsedSettings = JSON.parse(settings);
       setResponseLength(parsedSettings.responseLength || 150);
-      setShowTimestamps(parsedSettings.showTimestamps ?? true);
       setUseFriendlyTone(parsedSettings.useFriendlyTone ?? true);
     }
   }, []);
@@ -37,10 +36,15 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   useEffect(() => {
     localStorage.setItem('chatSettings', JSON.stringify({
       responseLength,
-      showTimestamps,
       useFriendlyTone,
     }));
-  }, [responseLength, showTimestamps, useFriendlyTone]);
+  }, [responseLength, useFriendlyTone]);
+  
+  const resetSettings = () => {
+    setResponseLength(150);
+    setUseFriendlyTone(true);
+    localStorage.removeItem('chatSettings');
+  };
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,7 +71,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
               <span className="text-right">{responseLength}</span>
             </div>
             <Slider
-              defaultValue={[responseLength]}
+              value={[responseLength]}
               max={300}
               step={10}
               onValueChange={(value) => setResponseLength(value[0])}
@@ -76,16 +80,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </div>
           
           <div className="flex items-center justify-between">
-            <label className="text-base font-medium">Show Message Timestamps</label>
-            <Switch
-              checked={showTimestamps}
-              onCheckedChange={setShowTimestamps}
-              className="data-[state=checked]:bg-primary"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <label className="text-base font-medium">Use Friendly Tone</label>
+            <label className="text-base font-medium">Use Friendly Tone with Emojis</label>
             <Switch
               checked={useFriendlyTone}
               onCheckedChange={setUseFriendlyTone}
@@ -93,6 +88,12 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
             />
           </div>
         </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={resetSettings}>
+            Reset Settings
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

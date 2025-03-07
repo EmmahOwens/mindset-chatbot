@@ -1,9 +1,8 @@
-
 import { useChat, Chat } from '@/context/ChatContext';
 import { useState } from 'react';
 import { 
-  Plus, MessageSquare, Settings, 
-  Trash2, ChevronDown, ChevronRight, 
+  Plus, MessageSquare, 
+  Trash2, ChevronDown, ChevronRight, ChevronLeft,
   Archive, ArchiveX, Sparkles
 } from 'lucide-react';
 import { 
@@ -62,19 +61,23 @@ export const Sidebar = () => {
   };
   
   return (
-    <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} transition-all duration-300 flex flex-col bg-gradient-to-b from-primary/5 to-background`}>
+    <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} transition-all duration-300 flex flex-col bg-gradient-to-b from-primary/10 to-background border-r border-border/30`}>
       <div className="p-4 flex items-center justify-between border-b border-border/40">
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/90 flex items-center justify-center shadow-md hover:bg-primary/10 transition-all duration-200"
         >
-          <Settings className="h-5 w-5 text-primary" />
+          {isCollapsed ? (
+            <ChevronRight className="h-5 w-5 text-primary" />
+          ) : (
+            <ChevronLeft className="h-5 w-5 text-primary" />
+          )}
         </button>
         
         {!isCollapsed && (
           <button
             onClick={handleNewChat}
-            className="flex items-center justify-center gap-2 py-2 px-4 bg-primary/90 hover:bg-primary transition-all duration-300 rounded-full text-white shadow-md"
+            className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-primary/90 hover:bg-primary transition-all duration-300 rounded-full text-white shadow-md"
           >
             <Plus className="h-5 w-5" />
             <span className="font-medium">New Chat</span>
