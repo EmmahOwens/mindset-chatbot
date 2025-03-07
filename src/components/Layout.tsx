@@ -14,12 +14,12 @@ export const Layout = () => {
     <div className="min-h-screen flex relative">
       {showSidebar && <Sidebar />}
       
-      <div className={`flex-1 flex flex-col ${showSidebar ? 'md:ml-72' : ''}`}>
-        <header className="h-16 border-b border-border/60 backdrop-blur-sm flex items-center justify-between gap-2 px-4 bg-background/80 z-20 fixed top-0 left-0 right-0 ml-0 md:ml-72">
+      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${showSidebar ? 'md:ml-72' : ''}`}>
+        <header className="h-16 border-b border-border/60 bg-background flex items-center justify-between gap-2 px-4 z-20 fixed top-0 left-0 right-0 ml-0 md:ml-72 transition-all duration-300 ease-in-out">
           {!showSidebar && (
             <button
               onClick={() => setShowSidebar(true)}
-              className="w-10 h-10 rounded-full neumorph-flat flex items-center justify-center transition-all duration-300 hover:scale-105"
+              className="w-10 h-10 rounded-full bg-background flex items-center justify-center transition-all duration-300 hover:scale-105"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -30,7 +30,7 @@ export const Layout = () => {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setShowSettings(true)}
-              className="w-10 h-10 rounded-full neumorph-flat flex items-center justify-center transition-all duration-300 hover:scale-105"
+              className="w-10 h-10 rounded-full bg-background flex items-center justify-center transition-all duration-300 hover:scale-105"
             >
               <Settings className="h-5 w-5" />
             </button>
@@ -48,7 +48,7 @@ export const Layout = () => {
       {/* Overlay for mobile when sidebar is open */}
       {showSidebar && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-20"
+          className="md:hidden fixed inset-0 bg-black/20 z-20"
           onClick={() => setShowSidebar(false)}
         >
           <button 
