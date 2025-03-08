@@ -7,7 +7,7 @@ import { Menu, Settings } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 
 export const Layout = () => {
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false); // Initialize to false
   const [showSettings, setShowSettings] = useState(false);
   
   return (
@@ -21,9 +21,17 @@ export const Layout = () => {
         <Sidebar onToggle={() => setShowSidebar(false)} />
       </div>
       
+      {/* Semi-transparent overlay that blurs content when sidebar is open */}
+      {showSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-all duration-300"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
+      
       <div className="flex-1 flex flex-col transition-all duration-500 ease-in-out">
         {/* Floating header controls without background */}
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+        <div className="fixed top-4 right-4 z-30 flex items-center gap-3">
           {/* Show toggle button on the left when sidebar is closed */}
           {!showSidebar && (
             <button
