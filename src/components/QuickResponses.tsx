@@ -51,12 +51,8 @@ export const QuickResponses = () => {
   };
   
   return (
-    <div className="py-4">
-      <div className="flex items-center justify-center gap-2 mb-3">
-        <Sparkles size={16} className="text-primary" />
-        <p className="text-sm text-muted-foreground font-medium">Suggested responses</p>
-      </div>
-      <div className="flex flex-wrap gap-2 justify-center">
+    <div className="py-3">
+      <div className="flex flex-wrap gap-2 justify-start">
         {loading ? (
           // Show skeleton loaders while loading
           Array(4).fill(0).map((_, index) => (

@@ -62,11 +62,18 @@ export const ChatInterface = () => {
         {activeMessages.length > 0 ? (
           <div className="max-w-3xl mx-auto w-full">
             {activeMessages.map((message, index) => (
-              <ChatMessage 
-                key={message.id} 
-                message={message} 
-                isLast={index === activeMessages.length - 1} 
-              />
+              <div key={message.id}>
+                <ChatMessage 
+                  message={message} 
+                  isLast={index === activeMessages.length - 1} 
+                />
+                {/* Place suggestions right after bot messages */}
+                {message.sender === 'bot' && index === activeMessages.length - 1 && (
+                  <div className="pl-2 mb-6">
+                    <QuickResponses />
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         ) : (
@@ -106,13 +113,6 @@ export const ChatInterface = () => {
           >
             <ArrowDown className="h-5 w-5" />
           </button>
-        </div>
-      )}
-      
-      {/* Floating quick responses with no background */}
-      {activeMessages.length > 0 && (
-        <div className="fixed bottom-24 left-0 right-0 z-40 px-4 mx-auto max-w-3xl">
-          <QuickResponses />
         </div>
       )}
       
