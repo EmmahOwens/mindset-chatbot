@@ -57,7 +57,7 @@ export const ChatInterface = () => {
     <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background/80 rounded-2xl relative">
       <div 
         ref={chatContainerRef}
-        className="flex-1 p-6 overflow-y-auto scrollbar-thin rounded-t-2xl"
+        className="flex-1 p-6 pt-16 pb-32 overflow-y-auto scrollbar-thin rounded-t-2xl"
       >
         {activeMessages.length > 0 ? (
           <div className="max-w-3xl mx-auto w-full">
@@ -89,19 +89,19 @@ export const ChatInterface = () => {
         )}
       </div>
       
-      {/* Scroll navigation buttons */}
+      {/* Floating scroll navigation buttons */}
       {showScrollButtons && activeMessages.length > 0 && (
-        <div className="absolute right-4 flex flex-col gap-2">
+        <div className="fixed right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-2 z-40">
           <button 
             onClick={scrollToTop}
-            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/80 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
+            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
             aria-label="Scroll to top"
           >
             <ArrowUp className="h-5 w-5" />
           </button>
           <button 
             onClick={scrollToBottom}
-            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/80 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
+            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
             aria-label="Scroll to bottom"
           >
             <ArrowDown className="h-5 w-5" />
@@ -109,14 +109,21 @@ export const ChatInterface = () => {
         </div>
       )}
       
-      {/* Show quick responses when there's at least one message */}
+      {/* Floating quick responses */}
       {activeMessages.length > 0 && (
-        <div className="px-4 backdrop-blur-sm bg-background/70 border-t border-border rounded-tl-xl rounded-tr-xl">
-          <QuickResponses />
+        <div className="fixed bottom-24 left-0 right-0 z-40 px-4 mx-auto max-w-3xl">
+          <div className="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-border/30 rounded-xl shadow-md">
+            <QuickResponses />
+          </div>
         </div>
       )}
       
-      <ChatInput />
+      {/* Floating chat input */}
+      <div className="fixed bottom-6 left-0 right-0 z-40 px-4 mx-auto max-w-3xl">
+        <div className="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-border/30 rounded-xl shadow-md">
+          <ChatInput />
+        </div>
+      </div>
     </div>
   );
 };

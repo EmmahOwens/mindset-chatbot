@@ -15,30 +15,27 @@ export const Layout = () => {
       {showSidebar && <Sidebar />}
       
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${showSidebar ? 'md:ml-72' : ''}`}>
-        <header className="h-16 border-b border-border/60 bg-background flex items-center justify-between gap-2 px-4 z-20 fixed top-0 left-0 right-0 ml-0 md:ml-72 transition-all duration-300 ease-in-out">
+        {/* Floating header controls */}
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md border border-border/30">
           {!showSidebar && (
             <button
               onClick={() => setShowSidebar(true)}
-              className="w-10 h-10 rounded-full bg-background flex items-center justify-center transition-all duration-300 hover:scale-105"
+              className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center transition-all duration-300 hover:scale-105"
             >
               <Menu className="h-5 w-5" />
             </button>
           )}
           
-          <div className="flex-1"></div>
-          
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setShowSettings(true)}
-              className="w-10 h-10 rounded-full bg-background flex items-center justify-center transition-all duration-300 hover:scale-105"
-            >
-              <Settings className="h-5 w-5" />
-            </button>
-            <ThemeToggle />
-          </div>
-        </header>
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center transition-all duration-300 hover:scale-105"
+          >
+            <Settings className="h-5 w-5" />
+          </button>
+          <ThemeToggle />
+        </div>
         
-        <div className="pt-16 flex-1 flex flex-col h-[calc(100vh-4rem)]">
+        <div className="flex-1 flex flex-col h-screen">
           <ChatInterface />
         </div>
         

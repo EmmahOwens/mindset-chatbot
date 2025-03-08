@@ -1,7 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useChat } from '@/context/ChatContext';
-import { Send, ChevronUp } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 export const ChatInput = () => {
   const [message, setMessage] = useState('');
@@ -45,9 +45,9 @@ export const ChatInput = () => {
   }, [message]);
   
   return (
-    <form onSubmit={handleSubmit} className="p-5 border-t border-border backdrop-blur-sm bg-background/80">
-      <div className="flex items-center gap-3 max-w-3xl mx-auto">
-        <div className="relative flex-1 rounded-2xl overflow-hidden border border-border/50 shadow-sm bg-white/10 dark:bg-gray-900/30 backdrop-blur-sm">
+    <form onSubmit={handleSubmit} className="p-3">
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 rounded-full overflow-hidden border border-border/50 shadow-sm bg-white/10 dark:bg-gray-900/30 backdrop-blur-sm">
           <textarea
             ref={textareaRef}
             value={message}
