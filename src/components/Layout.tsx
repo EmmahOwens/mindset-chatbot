@@ -14,9 +14,9 @@ export const Layout = () => {
     <div className="min-h-screen flex relative">
       {showSidebar && <Sidebar />}
       
-      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${showSidebar ? 'md:ml-72' : ''}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-500 ease-in-out ${showSidebar ? 'md:ml-72' : ''}`}>
         {/* Floating header controls */}
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md border border-border/30">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 p-2 rounded-full bg-white dark:bg-gray-800 shadow-md border border-border/30">
           {!showSidebar && (
             <button
               onClick={() => setShowSidebar(true)}
