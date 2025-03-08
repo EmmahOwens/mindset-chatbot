@@ -1,10 +1,9 @@
-
 import { useChat, Chat } from '@/context/ChatContext';
 import { useState } from 'react';
 import { 
   Plus, MessageSquare, 
-  Trash2, ChevronDown, ChevronRight, ChevronLeft,
-  Archive, ArchiveX, Sparkles
+  Trash2, ChevronDown, ChevronRight,
+  Archive, ArchiveX, Sparkles, X
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -14,7 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 
-export const Sidebar = () => {
+interface SidebarProps {
+  onToggle: () => void;
+}
+
+export const Sidebar = ({ onToggle }: SidebarProps) => {
   const { chats, activeChat, createChat, setActiveChat, deleteChat, archiveChat, unarchiveChat } = useChat();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
@@ -49,34 +52,18 @@ export const Sidebar = () => {
     return chat.messages.length;
   };
   
-  const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
-    } else {
-      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    }
-  };
-  
   return (
     <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} transition-all duration-500 ease-in-out 
-      ${isCollapsed ? 'transform translate-x-0' : 'transform translate-x-0'} 
       bg-white dark:bg-gray-800 border-r border-border/30`}>
+      <button 
+        onClick={onToggle}
+        className="absolute top-4 right-4 h-10 w-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-lg z-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+        aria-label="Close sidebar"
+      >
+        <X className="h-5 w-5" />
+      </button>
+      
       <div className="p-4 flex items-center justify-between border-b border-border/40">
-        <button 
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-700 flex items-center justify-center shadow-md hover:bg-primary/10 transition-all duration-200"
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-5 w-5 text-primary" />
-          ) : (
-            <ChevronLeft className="h-5 w-5 text-primary" />
-          )}
-        </button>
-        
         {!isCollapsed && (
           <button
             onClick={handleNewChat}
@@ -174,7 +161,7 @@ export const Sidebar = () => {
           <div className="mt-6">
             <button 
               onClick={() => setShowArchived(!showArchived)}
-              className="flex items-center w-full text-xs uppercase tracking-wider text-white/60 mb-3 ml-2 font-semibold"
+              className="flex items-center w-full text-xs uppercase tracking-wider text-gray-500 dark:text-white/60 mb-3 ml-2 font-semibold"
             >
               {showArchived ? <ChevronDown className="h-3 w-3 mr-1" /> : <ChevronRight className="h-3 w-3 mr-1" />}
               Archived Chats ({archivedChats.length})

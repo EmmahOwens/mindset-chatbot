@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ThemeToggle } from './ThemeToggle';
 import { Sidebar } from './Sidebar';
 import { ChatInterface } from './ChatInterface';
-import { Menu, Settings, X } from 'lucide-react';
+import { Menu, Settings } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 
 export const Layout = () => {
@@ -12,15 +12,17 @@ export const Layout = () => {
   
   return (
     <div className="min-h-screen flex relative">
-      {showSidebar && <Sidebar />}
+      {showSidebar && <Sidebar onToggle={() => setShowSidebar(false)} />}
       
       <div className={`flex-1 flex flex-col transition-all duration-500 ease-in-out ${showSidebar ? 'md:ml-72' : ''}`}>
-        {/* Floating header controls */}
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 p-2 rounded-full bg-white dark:bg-gray-800 shadow-md border border-border/30">
+        {/* Floating header controls without background */}
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+          {/* Show toggle button on the left when sidebar is closed */}
           {!showSidebar && (
             <button
               onClick={() => setShowSidebar(true)}
-              className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center transition-all duration-300 hover:scale-105"
+              className="fixed left-4 top-4 w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center transition-all duration-300 hover:scale-105"
+              aria-label="Open sidebar"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -28,7 +30,8 @@ export const Layout = () => {
           
           <button 
             onClick={() => setShowSettings(true)}
-            className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center transition-all duration-300 hover:scale-105"
+            className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center transition-all duration-300 hover:scale-105"
+            aria-label="Open settings"
           >
             <Settings className="h-5 w-5" />
           </button>
@@ -41,24 +44,6 @@ export const Layout = () => {
         
         <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       </div>
-      
-      {/* Overlay for mobile when sidebar is open */}
-      {showSidebar && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black/20 z-20"
-          onClick={() => setShowSidebar(false)}
-        >
-          <button 
-            className="absolute top-4 right-4 h-10 w-10 bg-background rounded-full flex items-center justify-center shadow-lg"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowSidebar(false);
-            }}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-      )}
     </div>
   );
 };

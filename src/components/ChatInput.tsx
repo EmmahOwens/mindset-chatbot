@@ -47,7 +47,7 @@ export const ChatInput = () => {
   return (
     <form onSubmit={handleSubmit} className="p-3">
       <div className="flex items-center gap-3">
-        <div className="relative flex-1 rounded-full overflow-hidden border border-border/50 shadow-sm bg-white/10 dark:bg-gray-900/30 backdrop-blur-sm">
+        <div className="relative flex-1 rounded-full overflow-hidden border border-border/50 shadow-md bg-white dark:bg-gray-900">
           <textarea
             ref={textareaRef}
             value={message}

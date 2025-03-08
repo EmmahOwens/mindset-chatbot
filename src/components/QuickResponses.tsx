@@ -71,7 +71,7 @@ export const QuickResponses = () => {
             <button
               key={index}
               onClick={() => handleQuickResponse(response)}
-              className="quick-response-btn animate-fade-in text-sm"
+              className="quick-response-btn animate-fade-in text-sm shadow-sm"
               style={{ animationDelay: `${index * 100}ms` }}
               disabled={loading}
             >

@@ -109,20 +109,16 @@ export const ChatInterface = () => {
         </div>
       )}
       
-      {/* Floating quick responses */}
+      {/* Floating quick responses with no background */}
       {activeMessages.length > 0 && (
         <div className="fixed bottom-24 left-0 right-0 z-40 px-4 mx-auto max-w-3xl">
-          <div className="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-border/30 rounded-xl shadow-md">
-            <QuickResponses />
-          </div>
+          <QuickResponses />
         </div>
       )}
       
-      {/* Floating chat input */}
+      {/* Floating chat input with no background */}
       <div className="fixed bottom-6 left-0 right-0 z-40 px-4 mx-auto max-w-3xl">
-        <div className="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-border/30 rounded-xl shadow-md">
-          <ChatInput />
-        </div>
+        <ChatInput />
       </div>
     </div>
   );
