@@ -7,8 +7,12 @@ import { Menu, Settings } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 
 export const Layout = () => {
-  const [showSidebar, setShowSidebar] = useState(false); // Initialize to false
+  const [showSidebar, setShowSidebar] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  
+  const toggleSidebar = () => {
+    setShowSidebar(prev => !prev);
+  };
   
   return (
     <div className="min-h-screen flex relative">
@@ -18,7 +22,7 @@ export const Layout = () => {
           showSidebar ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <Sidebar onToggle={() => setShowSidebar(false)} />
+        <Sidebar onToggle={toggleSidebar} />
       </div>
       
       {/* Semi-transparent overlay that blurs content when sidebar is open */}
@@ -35,7 +39,7 @@ export const Layout = () => {
           {/* Show toggle button on the left when sidebar is closed */}
           {!showSidebar && (
             <button
-              onClick={() => setShowSidebar(true)}
+              onClick={toggleSidebar}
               className="fixed left-4 top-4 w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center transition-all duration-300 hover:scale-105"
               aria-label="Open sidebar"
             >
