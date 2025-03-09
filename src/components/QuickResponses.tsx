@@ -51,7 +51,7 @@ export const QuickResponses = () => {
   };
   
   return (
-    <div className="py-3">
+    <div className="py-3 pl-6">
       <div className="flex flex-wrap gap-2 justify-start">
         {loading ? (
           // Show skeleton loaders while loading

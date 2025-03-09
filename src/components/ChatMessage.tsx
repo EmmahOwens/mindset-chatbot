@@ -13,7 +13,7 @@ export const ChatMessage = ({ message, isLast }: ChatMessageProps) => {
     >
       <div className={`
         ${message.sender === 'bot' 
-          ? 'chat-bubble-bot shadow-md' 
+          ? 'chat-bubble-bot shadow-md md:ml-16 md:mr-8' 
           : 'chat-bubble-user shadow-md'}
         ${isLast && message.sender === 'bot' ? 'typing-indicator' : ''}
         max-w-[80%] sm:max-w-[75%] md:max-w-[70%] rounded-2xl
