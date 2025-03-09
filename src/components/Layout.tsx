@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ThemeToggle } from './ThemeToggle';
 import { Sidebar } from './Sidebar';
 import { ChatInterface } from './ChatInterface';
@@ -9,13 +9,58 @@ import { SettingsDialog } from './SettingsDialog';
 export const Layout = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const toggleSidebar = () => {
     setShowSidebar(prev => !prev);
   };
   
+  // Handle touch events for swipe gestures
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      setTouchStartX(e.touches[0].clientX);
+    };
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      if (touchStartX === null) return;
+      
+      const currentX = e.touches[0].clientX;
+      const diff = currentX - touchStartX;
+      
+      // Swipe right to open sidebar (when closed)
+      if (diff > 70 && !showSidebar) {
+        setShowSidebar(true);
+        setTouchStartX(null);
+      }
+      
+      // Swipe left to close sidebar (when open)
+      if (diff < -70 && showSidebar) {
+        setShowSidebar(false);
+        setTouchStartX(null);
+      }
+    };
+    
+    const handleTouchEnd = () => {
+      setTouchStartX(null);
+    };
+    
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('touchstart', handleTouchStart);
+      container.addEventListener('touchmove', handleTouchMove);
+      container.addEventListener('touchend', handleTouchEnd);
+      
+      return () => {
+        container.removeEventListener('touchstart', handleTouchStart);
+        container.removeEventListener('touchmove', handleTouchMove);
+        container.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [touchStartX, showSidebar]);
+  
   return (
-    <div className="min-h-screen flex relative">
+    <div className="min-h-screen flex relative" ref={containerRef}>
       {/* Sidebar that overlays the content with animation */}
       <div 
         className={`fixed top-0 left-0 h-full z-50 transform transition-transform duration-300 ease-in-out ${
