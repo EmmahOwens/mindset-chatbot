@@ -1,9 +1,10 @@
+
 import { useChat, Chat } from '@/context/ChatContext';
 import { useState } from 'react';
 import { 
   Plus, MessageSquare, 
   Trash2, ChevronDown, ChevronRight,
-  Archive, ArchiveX, Sparkles, X
+  Archive, ArchiveX, Sparkles, X, ChevronLeft
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -52,18 +53,14 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
     return chat.messages.length;
   };
   
+  const toggleCollapsed = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+  
   return (
     <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} transition-all duration-500 ease-in-out 
       bg-white dark:bg-gray-800 border-r border-border/30`}>
-      <button 
-        onClick={onToggle}
-        className="absolute top-4 right-4 h-10 w-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-lg z-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
-        aria-label="Close sidebar"
-      >
-        <X className="h-5 w-5" />
-      </button>
-      
-      <div className="p-4 flex items-center justify-between border-b border-border/40">
+      <div className="flex justify-between items-center p-4">
         {!isCollapsed && (
           <button
             onClick={handleNewChat}
@@ -83,6 +80,24 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
             <Plus className="h-5 w-5" />
           </button>
         )}
+        
+        <div className="flex items-center">
+          <button 
+            onClick={toggleCollapsed}
+            className="ml-2 h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+          
+          <button 
+            onClick={onToggle}
+            className={`${isCollapsed ? 'ml-1' : 'ml-2'} h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700`}
+            aria-label="Close sidebar"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
       
       <div className="flex-1 overflow-y-auto p-3 scrollbar-thin">
