@@ -1,10 +1,9 @@
-
 import { useChat, Chat } from '@/context/ChatContext';
 import { useState } from 'react';
 import { 
   Plus, MessageSquare, 
   Trash2, ChevronDown, ChevronRight,
-  Archive, ArchiveX, Sparkles, X, ChevronLeft
+  Archive, ArchiveX, Sparkles, ChevronLeft
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -54,7 +53,11 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
   };
   
   const toggleCollapsed = () => {
-    setIsCollapsed(!isCollapsed);
+    if (isCollapsed) {
+      onToggle();
+    } else {
+      setIsCollapsed(true);
+    }
   };
   
   return (
@@ -88,14 +91,6 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </button>
-          
-          <button 
-            onClick={onToggle}
-            className={`${isCollapsed ? 'ml-1' : 'ml-2'} h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700`}
-            aria-label="Close sidebar"
-          >
-            <X className="h-4 w-4" />
           </button>
         </div>
       </div>
