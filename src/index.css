@@ -94,6 +94,17 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+  
+  /* Hide scrollbar for all elements across browsers */
+  * {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  /* Chrome, Safari and Opera */
+  *::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {
@@ -154,25 +165,8 @@
 }
 
 @layer utilities {
+  /* We're replacing this with the global approach above */
   .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 20px;
-  }
-  
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+    /* These styles are now applied globally */
   }
 }

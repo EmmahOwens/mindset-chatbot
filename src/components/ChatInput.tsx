@@ -31,6 +31,14 @@ export const ChatInput = () => {
     adjustTextareaHeight(e.target);
   };
   
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Send message on Enter key press (without Shift)
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();  // Prevent default behavior (newline)
+      handleSubmit(e as unknown as React.FormEvent);
+    }
+  };
+  
   const adjustTextareaHeight = (textarea: HTMLTextAreaElement) => {
     // Reset the height first to get the correct scrollHeight
     textarea.style.height = '48px';
@@ -52,6 +60,7 @@ export const ChatInput = () => {
             ref={textareaRef}
             value={message}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             rows={1}
             className="w-full py-3 px-4 bg-transparent focus:outline-none placeholder:text-muted-foreground resize-none overflow-hidden"
