@@ -4,17 +4,19 @@ import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { QuickResponses } from './QuickResponses';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { Button } from './ui/button';
 
 export const ChatInterface = () => {
   const { activeMessages, activeChat } = useChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
   
-  // Scroll to bottom on new messages
+  // Scroll to bottom on new messages if we're already at the bottom
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    if (chatContainerRef.current && isScrolledToBottom) {
+      scrollToBottom();
     }
   }, [activeMessages]);
   
@@ -27,11 +29,30 @@ export const ChatInterface = () => {
       }
     };
     
+    const handleScroll = () => {
+      if (chatContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+        // Consider "at bottom" when within 100px of the bottom
+        const atBottom = scrollHeight - scrollTop - clientHeight < 100;
+        setIsScrolledToBottom(atBottom);
+      }
+    };
+    
+    const chatContainer = chatContainerRef.current;
     checkScrollable();
+    
+    // Add scroll event listener
+    if (chatContainer) {
+      chatContainer.addEventListener('scroll', handleScroll);
+    }
+    
     window.addEventListener('resize', checkScrollable);
     
     return () => {
-      window.removeEventListener('resize', checkScrollable);
+      if (chatContainer) {
+        chatContainer.removeEventListener('scroll', handleScroll);
+      }
+      window.addEventListener('resize', checkScrollable);
     };
   }, [activeMessages]);
   
@@ -50,6 +71,7 @@ export const ChatInterface = () => {
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
       });
+      setIsScrolledToBottom(true);
     }
   };
   
@@ -57,7 +79,7 @@ export const ChatInterface = () => {
     <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background/80 rounded-2xl relative">
       <div 
         ref={chatContainerRef}
-        className="flex-1 p-6 pt-16 pb-32 overflow-y-auto scrollbar-thin rounded-t-2xl"
+        className="flex-1 p-6 pt-16 pb-32 overflow-y-auto scrollbar-none rounded-t-2xl"
       >
         {activeMessages.length > 0 ? (
           <div className="max-w-3xl mx-auto w-full pl-0 sm:pl-4">
@@ -96,23 +118,29 @@ export const ChatInterface = () => {
         )}
       </div>
       
-      {/* Floating scroll navigation buttons */}
+      {/* Enhanced navigation buttons */}
       {showScrollButtons && activeMessages.length > 0 && (
-        <div className="fixed right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-2 z-40">
-          <button 
+        <div className="fixed right-6 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 z-40">
+          <Button
             onClick={scrollToTop}
-            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
-            aria-label="Scroll to top"
+            size="icon"
+            variant="secondary"
+            className="h-10 w-10 rounded-full shadow-md hover:bg-primary hover:text-white transition-all duration-300"
+            aria-label="Scroll to first message"
           >
-            <ArrowUp className="h-5 w-5" />
-          </button>
-          <button 
+            <ChevronsUp className="h-5 w-5" />
+          </Button>
+          <Button
             onClick={scrollToBottom}
-            className="h-10 w-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
-            aria-label="Scroll to bottom"
+            size="icon"
+            variant="secondary"
+            className={`h-10 w-10 rounded-full shadow-md transition-all duration-300 ${
+              !isScrolledToBottom ? 'animate-bounce-subtle bg-primary/90 text-white' : ''
+            }`}
+            aria-label="Scroll to latest message"
           >
-            <ArrowDown className="h-5 w-5" />
-          </button>
+            <ChevronsDown className="h-5 w-5" />
+          </Button>
         </div>
       )}
       
