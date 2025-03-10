@@ -1,4 +1,3 @@
-
 import { useChat, Chat } from '@/context/ChatContext';
 import { useState } from 'react';
 import { 
@@ -55,14 +54,8 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
     return chat.messages.length;
   };
   
-  const toggleCollapsed = () => {
-    if (isCollapsed) {
-      // If already collapsed, close the sidebar completely
-      onToggle();
-    } else {
-      // If expanded, collapse it
-      setIsCollapsed(true);
-    }
+  const toggleSidebar = () => {
+    onToggle();
   };
   
   return (
@@ -90,11 +83,11 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
           </Button>
         )}
         
-        {!isCollapsed && (
+        {!isCollapsed ? (
           <button 
-            onClick={toggleCollapsed}
+            onClick={toggleSidebar}
             className="ml-2 h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-            aria-label="Collapse sidebar"
+            aria-label="Close sidebar"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -102,7 +95,7 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
         
         {isCollapsed && (
           <button 
-            onClick={toggleCollapsed}
+            onClick={toggleSidebar}
             className="mt-4 h-8 w-8 rounded-full flex items-center justify-center mx-auto hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
             aria-label="Close sidebar"
           >
