@@ -61,14 +61,12 @@ export const Layout = () => {
   
   return (
     <div className="min-h-screen flex relative" ref={containerRef}>
-      {/* Sidebar that overlays the content with animation */}
-      <div 
-        className={`fixed top-0 left-0 h-full z-50 transform transition-transform duration-300 ease-in-out ${
-          showSidebar ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <Sidebar onToggle={toggleSidebar} />
-      </div>
+      {/* Sidebar - only rendered when showSidebar is true */}
+      {showSidebar && (
+        <div className="fixed top-0 left-0 h-full z-50">
+          <Sidebar onToggle={toggleSidebar} />
+        </div>
+      )}
       
       {/* Semi-transparent overlay that blurs content when sidebar is open */}
       {showSidebar && (
@@ -78,7 +76,11 @@ export const Layout = () => {
         />
       )}
       
-      <div className="flex-1 flex flex-col transition-all duration-500 ease-in-out">
+      <div 
+        className={`flex-1 flex flex-col transition-all duration-500 ease-in-out ${
+          showSidebar ? 'pl-0 md:pl-72' : 'pl-0'
+        }`}
+      >
         {/* Floating header controls without background */}
         <div className="fixed top-4 right-4 z-30 flex items-center gap-3">
           {/* Show toggle button on the left when sidebar is closed */}
@@ -102,7 +104,7 @@ export const Layout = () => {
           <ThemeToggle />
         </div>
         
-        <div className="flex-1 flex flex-col h-screen">
+        <div className={`flex-1 flex flex-col h-screen ${showSidebar ? 'md:ml-0' : ''}`}>
           <ChatInterface />
         </div>
         

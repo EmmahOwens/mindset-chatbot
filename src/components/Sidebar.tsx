@@ -57,15 +57,17 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
   
   const toggleCollapsed = () => {
     if (isCollapsed) {
+      // If already collapsed, close the sidebar completely
       onToggle();
     } else {
+      // If expanded, collapse it
       setIsCollapsed(true);
     }
   };
   
   return (
     <aside className={cn(
-      "h-screen fixed z-30 transition-all duration-300 ease-in-out flex flex-col",
+      "h-screen transition-all duration-300 ease-in-out flex flex-col",
       "bg-white dark:bg-gray-800 border-r border-border/30",
       isCollapsed ? "w-16" : "w-72"
     )}>
@@ -102,9 +104,9 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
           <button 
             onClick={toggleCollapsed}
             className="mt-4 h-8 w-8 rounded-full flex items-center justify-center mx-auto hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-            aria-label="Expand sidebar"
+            aria-label="Close sidebar"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
         )}
       </div>

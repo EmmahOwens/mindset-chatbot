@@ -60,7 +60,7 @@ export const ChatInterface = () => {
         className="flex-1 p-6 pt-16 pb-32 overflow-y-auto scrollbar-thin rounded-t-2xl"
       >
         {activeMessages.length > 0 ? (
-          <div className="max-w-3xl mx-auto w-full">
+          <div className="max-w-3xl mx-auto w-full pl-0 sm:pl-4">
             {activeMessages.map((message, index) => (
               <div key={message.id}>
                 <ChatMessage 
