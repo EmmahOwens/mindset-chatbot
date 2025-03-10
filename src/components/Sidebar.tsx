@@ -1,3 +1,4 @@
+
 import { useChat, Chat } from '@/context/ChatContext';
 import { useState } from 'react';
 import { 
@@ -11,7 +12,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface SidebarProps {
   onToggle: () => void;
@@ -61,70 +64,89 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
   };
   
   return (
-    <aside className={`h-screen fixed z-30 ${isCollapsed ? 'w-16' : 'w-72'} transition-all duration-500 ease-in-out 
-      bg-white dark:bg-gray-800 border-r border-border/30`}>
-      <div className="flex justify-between items-center p-4">
-        {!isCollapsed && (
-          <button
+    <aside className={cn(
+      "h-screen fixed z-30 transition-all duration-300 ease-in-out flex flex-col",
+      "bg-white dark:bg-gray-800 border-r border-border/30",
+      isCollapsed ? "w-16" : "w-72"
+    )}>
+      <div className="flex justify-between items-center p-4 border-b border-border/20">
+        {!isCollapsed ? (
+          <Button
             onClick={handleNewChat}
-            className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-teal-500 hover:bg-teal-600 transition-all duration-300 rounded-full text-white shadow-md"
+            className="flex-1 gap-2 bg-teal-500 hover:bg-teal-600 text-white shadow-md"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="font-medium">New Chat</span>
+          </Button>
+        ) : (
+          <Button
+            onClick={handleNewChat}
+            className="h-10 w-10 p-0 rounded-full bg-teal-500 hover:bg-teal-600 text-white shadow-md mx-auto"
+            title="New Chat"
           >
             <Plus className="h-5 w-5" />
-            <span className="font-medium">New Chat</span>
+          </Button>
+        )}
+        
+        {!isCollapsed && (
+          <button 
+            onClick={toggleCollapsed}
+            className="ml-2 h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+            aria-label="Collapse sidebar"
+          >
+            <ChevronLeft className="h-4 w-4" />
           </button>
         )}
         
         {isCollapsed && (
-          <button
-            onClick={handleNewChat}
-            className="h-10 w-10 bg-teal-500 hover:bg-teal-600 flex items-center justify-center rounded-full text-white shadow-md transition-all duration-200"
-            title="New Chat"
-          >
-            <Plus className="h-5 w-5" />
-          </button>
-        )}
-        
-        <div className="flex items-center">
           <button 
             onClick={toggleCollapsed}
-            className="ml-2 h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="mt-4 h-8 w-8 rounded-full flex items-center justify-center mx-auto hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+            aria-label="Expand sidebar"
           >
-            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            <ChevronRight className="h-4 w-4" />
           </button>
-        </div>
+        )}
       </div>
       
-      <div className="flex-1 overflow-y-auto p-3 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto scrollbar-thin p-3">
         {!isCollapsed && activeChats.length > 0 && (
-          <h2 className="text-xs uppercase tracking-wider text-gray-500 dark:text-white font-semibold mb-3 ml-2 flex items-center">
+          <div className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/70 font-semibold mb-3 ml-2">
             <Sparkles className="h-3 w-3 mr-1" />
-            Active Chats
-          </h2>
+            <span>Active Chats</span>
+          </div>
         )}
         
-        <div className="space-y-2">
+        <div className={cn("space-y-2", isCollapsed && "flex flex-col items-center")}>
           {activeChats.map(chat => (
             <div
               key={chat.id}
               onClick={() => setActiveChat(chat.id)}
-              className={`cursor-pointer transition-all duration-200 ${
+              className={cn(
+                "cursor-pointer transition-all duration-200 border",
                 activeChat === chat.id 
-                  ? 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-white/30 text-gray-900 dark:text-white shadow-sm'
-                  : 'bg-white/80 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white shadow-sm border-transparent'
-              } ${isCollapsed ? 'p-2 rounded-full' : 'p-3 rounded-xl'} border`}
+                  ? "bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-white/30 text-gray-900 dark:text-white shadow-sm"
+                  : "bg-white/80 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white shadow-sm border-transparent",
+                isCollapsed ? "p-2 rounded-full w-12 h-12 flex items-center justify-center" : "p-3 rounded-xl"
+              )}
             >
               {isCollapsed ? (
-                <div className="flex justify-center">
+                <div className={cn(
+                  "flex justify-center items-center rounded-full",
+                  activeChat === chat.id ? "text-teal-500" : "text-gray-500 dark:text-white/70"
+                )}>
                   <MessageSquare className="h-5 w-5" />
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                      activeChat === chat.id ? 'bg-gray-200 dark:bg-white/20' : 'bg-gray-100 dark:bg-white/10'
-                    }`}>
-                      <MessageSquare className={`h-4 w-4 ${activeChat === chat.id ? 'text-gray-700 dark:text-white' : 'text-gray-500 dark:text-white/70'}`} />
+                    <div className={cn(
+                      "h-8 w-8 rounded-full flex items-center justify-center",
+                      activeChat === chat.id 
+                        ? "bg-teal-100 dark:bg-teal-800/30 text-teal-600 dark:text-teal-400" 
+                        : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/70"
+                    )}>
+                      <MessageSquare className="h-4 w-4" />
                     </div>
                     <div className="overflow-hidden">
                       <p className="truncate font-medium">{chat.title}</p>
@@ -183,18 +205,20 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
                   <div
                     key={chat.id}
                     onClick={() => setActiveChat(chat.id)}
-                    className={`cursor-pointer transition-all duration-200 ${
+                    className={cn(
+                      "cursor-pointer transition-all duration-200 border p-3 rounded-xl",
                       activeChat === chat.id 
-                        ? 'bg-white/20 dark:bg-gray-700 border-white/30 text-white shadow-sm'
-                        : 'bg-white/10 dark:bg-gray-800/80 hover:bg-white/20 dark:hover:bg-gray-700 text-white shadow-sm border-transparent'
-                    } p-3 rounded-xl border`}
+                        ? "bg-white/20 dark:bg-gray-700 border-white/30 text-white shadow-sm"
+                        : "bg-white/10 dark:bg-gray-800/80 hover:bg-white/20 dark:hover:bg-gray-700 text-white shadow-sm border-transparent"
+                    )}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                          activeChat === chat.id ? 'bg-white/20' : 'bg-white/10'
-                        }`}>
-                          <Archive className={`h-4 w-4 ${activeChat === chat.id ? 'text-white' : 'text-white/70'}`} />
+                        <div className={cn(
+                          "h-8 w-8 rounded-full flex items-center justify-center",
+                          activeChat === chat.id ? "bg-amber-100/20 text-amber-400" : "bg-white/10 text-white/70"
+                        )}>
+                          <Archive className="h-4 w-4" />
                         </div>
                         <div className="overflow-hidden">
                           <p className="truncate font-medium">{chat.title}</p>
@@ -239,6 +263,14 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
           </div>
         )}
       </div>
+      
+      {!isCollapsed && (
+        <div className="p-3 border-t border-border/20 mt-auto">
+          <div className="text-xs text-gray-500 dark:text-white/50 text-center">
+            <p>Your mental health companion</p>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };
