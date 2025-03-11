@@ -1,3 +1,4 @@
+
 import { useChat, Chat } from '@/context/ChatContext';
 import { useState } from 'react';
 import { 
@@ -12,7 +13,8 @@ import {
   Trash2, 
   ArrowUpRightFromCircle,
   MessagesSquare, 
-  MessageSquare
+  MessageSquare,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from './ThemeToggle';
@@ -22,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SettingsDialog } from './SettingsDialog';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type SidebarProps = {
   isOpen: boolean;
@@ -35,7 +37,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const [isArchiveVisible, setIsArchiveVisible] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { toast } = useToast();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   const activeChats = chats.filter(chat => !chat.archived);
   const archivedChats = chats.filter(chat => chat.archived);
@@ -55,8 +57,14 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
     return chat.messages.length;
   };
   
-  const toggleSidebar = () => {
-    onToggle();
+  // Close sidebar completely
+  const closeSidebar = () => {
+    onToggle(); // Call the parent toggle function
+  };
+  
+  // Toggle collapse state of sidebar
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
   };
   
   return (
@@ -78,37 +86,28 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
           </h2>
         )}
         
-        {isCollapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 mx-auto"
-            onClick={handleCreateChat}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        )}
-        
-        {!isCollapsed ? (
+        <div className="flex items-center gap-1 ml-auto">
+          {!isMobile && (
+            <button 
+              onClick={toggleCollapse}
+              className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </button>
+          )}
+          
           <button 
-            onClick={toggleSidebar}
-            className="ml-2 h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+            onClick={closeSidebar}
+            className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
             aria-label="Close sidebar"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <X className="h-4 w-4" />
           </button>
-        ) : (
-          <button 
-            onClick={toggleSidebar}
-            className="mt-4 h-8 w-8 rounded-full flex items-center justify-center mx-auto hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-            aria-label="Close sidebar"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        )}
+        </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto scrollbar-thin">
+      <div className="flex-1 overflow-y-auto scrollbar-none">
         <div className="p-2">
           <Button variant="ghost" className="w-full justify-start rounded-md p-2 hover:bg-secondary/50 dark:hover:bg-secondary/50" onClick={handleCreateChat}>
             <Plus className="h-4 w-4 mr-2" />
@@ -253,7 +252,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             </Button>
           </li>
           <li>
-            <ThemeToggle isCollapsed={isCollapsed} />
+            <ThemeToggle collapsed={isCollapsed} />
           </li>
         </ul>
       </div>

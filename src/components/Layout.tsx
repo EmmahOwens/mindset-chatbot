@@ -64,7 +64,7 @@ export const Layout = () => {
       {/* Sidebar - only rendered when showSidebar is true */}
       {showSidebar && (
         <div className="fixed top-0 left-0 h-full z-50">
-          <Sidebar onToggle={toggleSidebar} />
+          <Sidebar isOpen={showSidebar} onToggle={toggleSidebar} />
         </div>
       )}
       

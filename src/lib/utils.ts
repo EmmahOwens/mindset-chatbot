@@ -20,3 +20,23 @@ export function isScrolledToBottom(elementRef: React.RefObject<HTMLElement>, thr
   const { scrollTop, scrollHeight, clientHeight } = elementRef.current;
   return scrollHeight - scrollTop - clientHeight <= threshold;
 }
+
+// Add a debounce utility for sidebar toggle actions
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  
+  return function executedFunction(...args: Parameters<T>) {
+    const later = () => {
+      timeout = null;
+      func(...args);
+    };
+    
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(later, wait);
+  };
+}
