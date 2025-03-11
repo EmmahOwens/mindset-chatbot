@@ -21,6 +21,13 @@ export function isScrolledToBottom(elementRef: React.RefObject<HTMLElement>, thr
   return scrollHeight - scrollTop - clientHeight <= threshold;
 }
 
+// Function to check if an element is at the top
+export function isScrolledToTop(elementRef: React.RefObject<HTMLElement>, threshold = 20) {
+  if (!elementRef.current) return true;
+  
+  return elementRef.current.scrollTop <= threshold;
+}
+
 // Add a debounce utility for sidebar toggle actions
 export function debounce<T extends (...args: any[]) => any>(
   func: T,

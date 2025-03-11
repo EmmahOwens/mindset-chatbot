@@ -4,37 +4,37 @@ import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { QuickResponses } from './QuickResponses';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, ArrowDown, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { ChevronsUp, ChevronsDown } from 'lucide-react';
 import { Button } from './ui/button';
+import { isScrolledToBottom, isScrolledToTop } from '@/lib/utils';
 
 export const ChatInterface = () => {
   const { activeMessages, activeChat } = useChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const [isAtTop, setIsAtTop] = useState(true);
   
   // Scroll to bottom on new messages if we're already at the bottom
   useEffect(() => {
-    if (chatContainerRef.current && isScrolledToBottom) {
+    if (chatContainerRef.current && isAtBottom) {
       scrollToBottom();
     }
   }, [activeMessages]);
   
-  // Show scroll buttons when chat is scrollable
+  // Show scroll buttons when chat is scrollable and track scroll position
   useEffect(() => {
     const checkScrollable = () => {
       if (chatContainerRef.current) {
         const { scrollHeight, clientHeight } = chatContainerRef.current;
-        setShowScrollButtons(scrollHeight > clientHeight);
+        setShowScrollButtons(scrollHeight > clientHeight + 50); // Only show if there's significant scroll
       }
     };
     
     const handleScroll = () => {
       if (chatContainerRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-        // Consider "at bottom" when within 100px of the bottom
-        const atBottom = scrollHeight - scrollTop - clientHeight < 100;
-        setIsScrolledToBottom(atBottom);
+        setIsAtBottom(isScrolledToBottom(chatContainerRef, 100));
+        setIsAtTop(isScrolledToTop(chatContainerRef, 20));
       }
     };
     
@@ -52,7 +52,7 @@ export const ChatInterface = () => {
       if (chatContainer) {
         chatContainer.removeEventListener('scroll', handleScroll);
       }
-      window.addEventListener('resize', checkScrollable);
+      window.removeEventListener('resize', checkScrollable);
     };
   }, [activeMessages]);
   
@@ -71,7 +71,7 @@ export const ChatInterface = () => {
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
       });
-      setIsScrolledToBottom(true);
+      setIsAtBottom(true);
     }
   };
   
@@ -125,7 +125,10 @@ export const ChatInterface = () => {
             onClick={scrollToTop}
             size="icon"
             variant="secondary"
-            className="h-10 w-10 rounded-full shadow-md hover:bg-primary hover:text-white transition-all duration-300"
+            className={`h-10 w-10 rounded-full shadow-md transition-all duration-300 ${
+              !isAtTop ? 'hover:bg-primary hover:text-white' : 'opacity-50'
+            }`}
+            disabled={isAtTop}
             aria-label="Scroll to first message"
           >
             <ChevronsUp className="h-5 w-5" />
@@ -135,8 +138,9 @@ export const ChatInterface = () => {
             size="icon"
             variant="secondary"
             className={`h-10 w-10 rounded-full shadow-md transition-all duration-300 ${
-              !isScrolledToBottom ? 'animate-bounce-subtle bg-primary/90 text-white' : ''
+              !isAtBottom ? 'animate-bounce-subtle bg-primary/90 text-white' : 'opacity-50'
             }`}
+            disabled={isAtBottom}
             aria-label="Scroll to latest message"
           >
             <ChevronsDown className="h-5 w-5" />
