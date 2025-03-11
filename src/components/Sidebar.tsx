@@ -14,6 +14,7 @@ import {
   ArrowUpRightFromCircle,
   MessagesSquare, 
   MessageSquare,
+  Archive,
   X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,15 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SettingsDialog } from './SettingsDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -36,6 +46,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isArchiveVisible, setIsArchiveVisible] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
@@ -65,6 +76,31 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   // Toggle collapse state of sidebar
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+  };
+  
+  const handleArchiveChat = (chatId: string) => {
+    archiveChat(chatId);
+    toast({
+      description: 'Chat archived successfully',
+    });
+  };
+  
+  const handleUnarchiveChat = (chatId: string) => {
+    unarchiveChat(chatId);
+    toast({
+      description: 'Chat restored from archive',
+    });
+  };
+  
+  const handleDeleteChat = () => {
+    if (chatToDelete) {
+      deleteChat(chatToDelete);
+      setChatToDelete(null);
+      toast({
+        description: 'Chat deleted successfully',
+        variant: 'destructive',
+      });
+    }
   };
   
   return (
@@ -135,40 +171,87 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
           </h3>
           <ul>
             {activeChats.map((chat) => (
-              <li key={chat.id}>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "w-full justify-start rounded-md p-2 hover:bg-secondary/50 dark:hover:bg-secondary/50",
-                    activeChat === chat.id ? "bg-secondary/50 dark:bg-secondary/50" : ""
-                  )}
-                  onClick={() => setActiveChat(chat.id)}
-                >
-                  {!isCollapsed && (
-                    <>
-                      {chat.title}
-                      {getMessageCount(chat) > 0 && (
-                        <Badge variant="secondary" className="ml-auto">
-                          {getMessageCount(chat)}
-                        </Badge>
+              <li key={chat.id} className="relative">
+                <DropdownMenu>
+                  <div className="flex items-center">
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start rounded-md p-2 hover:bg-secondary/50 dark:hover:bg-secondary/50",
+                        activeChat === chat.id ? "bg-secondary/50 dark:bg-secondary/50" : ""
                       )}
-                    </>
-                  )}
-                  {isCollapsed && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex items-center justify-center">
-                            <MessageSquare className="h-4 w-4" />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{chat.title}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </Button>
+                      onClick={() => setActiveChat(chat.id)}
+                    >
+                      {!isCollapsed && (
+                        <>
+                          {chat.title}
+                          {getMessageCount(chat) > 0 && (
+                            <Badge variant="secondary" className="ml-auto">
+                              {getMessageCount(chat)}
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                      {isCollapsed && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center justify-center">
+                                <MessageSquare className="h-4 w-4" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{chat.title}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </Button>
+                    
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="absolute right-0 h-8 w-8 opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 hover:bg-secondary/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical">
+                          <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                        </svg>
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </div>
+                  
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel>{chat.title}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleArchiveChat(chat.id)} className="cursor-pointer">
+                      <Archive className="h-4 w-4 mr-2" />
+                      Archive Chat
+                    </DropdownMenuItem>
+                    <AlertDialog open={chatToDelete === chat.id} onOpenChange={(open) => !open && setChatToDelete(null)}>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem 
+                          onClick={() => setChatToDelete(chat.id)} 
+                          className="cursor-pointer text-destructive"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Chat
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the chat and all its messages.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteChat} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </li>
             ))}
           </ul>
@@ -202,40 +285,87 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
           {isArchiveVisible && (
             <ul>
               {archivedChats.map((chat) => (
-                <li key={chat.id}>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "w-full justify-start rounded-md p-2 hover:bg-secondary/50 dark:hover:bg-secondary/50",
-                      activeChat === chat.id ? "bg-secondary/50 dark:bg-secondary/50" : ""
-                    )}
-                    onClick={() => setActiveChat(chat.id)}
-                  >
-                    {!isCollapsed && (
-                      <>
-                        {chat.title}
-                        {getMessageCount(chat) > 0 && (
-                          <Badge variant="secondary" className="ml-auto">
-                            {getMessageCount(chat)}
-                          </Badge>
+                <li key={chat.id} className="relative">
+                  <DropdownMenu>
+                    <div className="flex items-center">
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "w-full justify-start rounded-md p-2 hover:bg-secondary/50 dark:hover:bg-secondary/50",
+                          activeChat === chat.id ? "bg-secondary/50 dark:bg-secondary/50" : ""
                         )}
-                      </>
-                    )}
-                    {isCollapsed && (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center justify-center">
-                              <MessageSquare className="h-4 w-4" />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{chat.title}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
-                  </Button>
+                        onClick={() => setActiveChat(chat.id)}
+                      >
+                        {!isCollapsed && (
+                          <>
+                            {chat.title}
+                            {getMessageCount(chat) > 0 && (
+                              <Badge variant="secondary" className="ml-auto">
+                                {getMessageCount(chat)}
+                              </Badge>
+                            )}
+                          </>
+                        )}
+                        {isCollapsed && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center justify-center">
+                                  <MessageSquare className="h-4 w-4" />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{chat.title}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </Button>
+                      
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="absolute right-0 h-8 w-8 opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 hover:bg-secondary/50">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical">
+                            <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                          </svg>
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </div>
+                    
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuLabel>{chat.title}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleUnarchiveChat(chat.id)} className="cursor-pointer">
+                        <ArrowUpRightFromCircle className="h-4 w-4 mr-2" />
+                        Restore Chat
+                      </DropdownMenuItem>
+                      <AlertDialog open={chatToDelete === chat.id} onOpenChange={(open) => !open && setChatToDelete(null)}>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem 
+                            onClick={() => setChatToDelete(chat.id)} 
+                            className="cursor-pointer text-destructive"
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Chat
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the chat and all its messages.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDeleteChat} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </li>
               ))}
             </ul>
@@ -252,7 +382,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             </Button>
           </li>
           <li>
-            <ThemeToggle collapsed={isCollapsed} />
+            <ThemeToggle isCollapsed={isCollapsed} />
           </li>
         </ul>
       </div>

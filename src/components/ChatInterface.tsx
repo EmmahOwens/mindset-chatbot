@@ -1,4 +1,3 @@
-
 import { useChat } from '@/context/ChatContext';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
@@ -6,7 +5,7 @@ import { QuickResponses } from './QuickResponses';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronsUp, ChevronsDown } from 'lucide-react';
 import { Button } from './ui/button';
-import { isScrolledToBottom, isScrolledToTop } from '@/lib/utils';
+import { isScrolledToBottom, isScrolledToTop, scrollToBottom } from '@/lib/utils';
 
 export const ChatInterface = () => {
   const { activeMessages, activeChat } = useChat();
@@ -15,12 +14,20 @@ export const ChatInterface = () => {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
   
-  // Scroll to bottom on new messages if we're already at the bottom
+  // Scroll to bottom on new messages if we're already at the bottom or when a bot message is added
   useEffect(() => {
-    if (chatContainerRef.current && isAtBottom) {
-      scrollToBottom();
+    if (chatContainerRef.current) {
+      // Auto-scroll to bottom when a new bot message is added
+      if (activeMessages.length > 0 && activeMessages[activeMessages.length - 1].sender === 'bot') {
+        scrollToBottom(chatContainerRef);
+        setIsAtBottom(true);
+      } 
+      // Otherwise, only scroll if we were already at the bottom
+      else if (isAtBottom) {
+        scrollToBottom(chatContainerRef);
+      }
     }
-  }, [activeMessages]);
+  }, [activeMessages, isAtBottom]);
   
   // Show scroll buttons when chat is scrollable and track scroll position
   useEffect(() => {
@@ -56,7 +63,7 @@ export const ChatInterface = () => {
     };
   }, [activeMessages]);
   
-  const scrollToTop = () => {
+  const scrollToTopHandler = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
         top: 0,
@@ -65,7 +72,7 @@ export const ChatInterface = () => {
     }
   };
   
-  const scrollToBottom = () => {
+  const scrollToBottomHandler = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
@@ -118,11 +125,11 @@ export const ChatInterface = () => {
         )}
       </div>
       
-      {/* Enhanced navigation buttons */}
+      {/* Navigation buttons */}
       {showScrollButtons && activeMessages.length > 0 && (
         <div className="fixed right-6 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 z-40">
           <Button
-            onClick={scrollToTop}
+            onClick={scrollToTopHandler}
             size="icon"
             variant="secondary"
             className={`h-10 w-10 rounded-full shadow-md transition-all duration-300 ${
@@ -134,7 +141,7 @@ export const ChatInterface = () => {
             <ChevronsUp className="h-5 w-5" />
           </Button>
           <Button
-            onClick={scrollToBottom}
+            onClick={scrollToBottomHandler}
             size="icon"
             variant="secondary"
             className={`h-10 w-10 rounded-full shadow-md transition-all duration-300 ${
