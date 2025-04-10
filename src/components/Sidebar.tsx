@@ -15,7 +15,8 @@ import {
   MessagesSquare, 
   MessageSquare,
   Archive,
-  X
+  X,
+  MoreVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from './ThemeToggle';

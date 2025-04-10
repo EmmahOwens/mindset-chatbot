@@ -9,7 +9,10 @@ export function cn(...inputs: ClassValue[]) {
 // Function to scroll to bottom of a container
 export function scrollToBottom(elementRef: React.RefObject<HTMLElement>) {
   if (elementRef.current) {
-    elementRef.current.scrollTop = elementRef.current.scrollHeight;
+    elementRef.current.scrollTo({
+      top: elementRef.current.scrollHeight,
+      behavior: 'smooth'
+    });
   }
 }
 

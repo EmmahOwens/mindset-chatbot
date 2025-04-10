@@ -1,7 +1,6 @@
 
 import { Message } from '@/context/ChatContext';
 import { useEffect, useRef } from 'react';
-import { scrollToBottom } from '@/lib/utils';
 
 interface ChatMessageProps {
   message: Message;
