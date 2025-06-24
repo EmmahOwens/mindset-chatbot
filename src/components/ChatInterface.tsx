@@ -1,3 +1,4 @@
+
 import { useChat } from '@/context/ChatContext';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
@@ -20,7 +21,7 @@ export const ChatInterface = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowGreeter(false);
-    }, 2000);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, []);
