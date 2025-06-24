@@ -19,7 +19,6 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from './ThemeToggle';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
@@ -372,20 +371,6 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             </ul>
           )}
         </div>
-      </div>
-      
-      <div className="p-4 border-t border-border">
-        <ul>
-          <li>
-            <Button variant="ghost" className="w-full justify-start rounded-md p-2 hover:bg-secondary/50 dark:hover:bg-secondary/50" onClick={() => setIsSettingsOpen(true)}>
-              <Settings className="h-4 w-4 mr-2" />
-              {!isCollapsed && <span>Settings</span>}
-            </Button>
-          </li>
-          <li>
-            <ThemeToggle isCollapsed={isCollapsed} />
-          </li>
-        </ul>
       </div>
       
       <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />

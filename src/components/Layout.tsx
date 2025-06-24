@@ -1,9 +1,7 @@
-
 import { useState, useEffect, useRef } from 'react';
-import { ThemeToggle } from './ThemeToggle';
 import { Sidebar } from './Sidebar';
 import { ChatInterface } from './ChatInterface';
-import { Menu, Settings } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 
 export const Layout = () => {
@@ -93,15 +91,6 @@ export const Layout = () => {
               <Menu className="h-5 w-5" />
             </button>
           )}
-          
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center transition-all duration-300 hover:scale-105"
-            aria-label="Open settings"
-          >
-            <Settings className="h-5 w-5" />
-          </button>
-          <ThemeToggle />
         </div>
         
         <div className={`flex-1 flex flex-col h-screen ${showSidebar ? 'md:ml-0' : ''}`}>
