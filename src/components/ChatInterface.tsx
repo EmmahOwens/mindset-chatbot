@@ -2,6 +2,7 @@ import { useChat } from '@/context/ChatContext';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { QuickResponses } from './QuickResponses';
+import { GreeterMessage } from './GreeterMessage';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronsUp, ChevronsDown } from 'lucide-react';
 import { Button } from './ui/button';
@@ -13,6 +14,16 @@ export const ChatInterface = () => {
   const [showScrollButtons, setShowScrollButtons] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [showGreeter, setShowGreeter] = useState(true);
+  
+  // Show greeter only on initial load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowGreeter(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
   
   // Scroll to bottom on new messages if we're already at the bottom or when a bot message is added
   useEffect(() => {
@@ -81,6 +92,8 @@ export const ChatInterface = () => {
   
   return (
     <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background/80 rounded-2xl relative">
+      {showGreeter && <GreeterMessage />}
+      
       <div 
         ref={chatContainerRef}
         className="flex-1 p-6 pt-16 pb-32 overflow-y-auto scrollbar-none rounded-t-2xl"
