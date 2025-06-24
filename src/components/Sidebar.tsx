@@ -383,7 +383,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             </Button>
           </li>
           <li>
-            <ThemeToggle />
+            <ThemeToggle isCollapsed={isCollapsed} />
           </li>
         </ul>
       </div>
