@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -318,10 +319,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         let responseContent = data.content;
         
-        // Check if response was truncated and warn user
+        // Log truncation warning to console but don't show to user
         if (data.truncated) {
           console.warn('Response was truncated by the API');
-          responseContent += '\n\n[Response may be incomplete due to length limits]';
         }
         
         responseContent = addEmojisToResponse(responseContent);
