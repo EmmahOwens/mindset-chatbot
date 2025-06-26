@@ -1,6 +1,7 @@
 
 import { Message } from '@/context/ChatContext';
 import { useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMessageProps {
   message: Message;
@@ -34,7 +35,25 @@ export const ChatMessage = ({ message, isLast }: ChatMessageProps) => {
         ${isLast && message.sender === 'bot' ? 'typing-indicator' : ''}
         max-w-[80%] sm:max-w-[75%] md:max-w-[70%] rounded-2xl
       `}>
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        {message.sender === 'bot' ? (
+          <ReactMarkdown 
+            className="prose prose-sm max-w-none dark:prose-invert"
+            components={{
+              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+              em: ({ children }) => <em className="italic">{children}</em>,
+              ul: ({ children }) => <ul className="list-disc list-inside mb-2">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
+              li: ({ children }) => <li className="mb-1">{children}</li>,
+              code: ({ children }) => <code className="bg-muted px-1 py-0.5 rounded text-sm">{children}</code>,
+              pre: ({ children }) => <pre className="bg-muted p-2 rounded text-sm overflow-x-auto">{children}</pre>,
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
+        ) : (
+          <p className="whitespace-pre-wrap">{message.content}</p>
+        )}
       </div>
     </div>
   );
