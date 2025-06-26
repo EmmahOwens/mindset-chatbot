@@ -306,16 +306,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         const messageHistory = [...chat.messages, newMessage];
         
+        // Use higher token limit to prevent truncation
         const { data, error } = await supabase.functions.invoke('chat-gemini', {
           body: { 
             messages: messageHistory,
-            maxTokens: settings.responseLength
+            maxTokens: Math.max(settings.responseLength, 1500) // Ensure minimum of 1500 tokens
           }
         });
         
         if (error) throw error;
         
         let responseContent = data.content;
+        
+        // Check if response was truncated and warn user
+        if (data.truncated) {
+          console.warn('Response was truncated by the API');
+          responseContent += '\n\n[Response may be incomplete due to length limits]';
+        }
+        
         responseContent = addEmojisToResponse(responseContent);
         
         dispatch({
