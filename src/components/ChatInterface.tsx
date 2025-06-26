@@ -1,16 +1,18 @@
 
+
 import { useChat } from '@/context/ChatContext';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { QuickResponses } from './QuickResponses';
 import { GreeterMessage } from './GreeterMessage';
+import { ThinkingIndicator } from './ThinkingIndicator';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronsUp, ChevronsDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { isScrolledToBottom, isScrolledToTop, scrollToBottom } from '@/lib/utils';
 
 export const ChatInterface = () => {
-  const { activeMessages, activeChat } = useChat();
+  const { activeMessages, activeChat, isLoadingResponse } = useChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -108,13 +110,15 @@ export const ChatInterface = () => {
                   isLast={index === activeMessages.length - 1} 
                 />
                 {/* Place suggestions right after bot messages */}
-                {message.sender === 'bot' && index === activeMessages.length - 1 && (
+                {message.sender === 'bot' && index === activeMessages.length - 1 && !isLoadingResponse && (
                   <div className="pl-2 mb-6">
                     <QuickResponses />
                   </div>
                 )}
               </div>
             ))}
+            {/* Show thinking indicator when AI is generating response */}
+            {isLoadingResponse && <ThinkingIndicator />}
           </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center">
@@ -173,3 +177,4 @@ export const ChatInterface = () => {
     </div>
   );
 };
+

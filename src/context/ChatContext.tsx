@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -35,6 +34,7 @@ type ChatContextType = {
   chats: Chat[];
   activeChat: string | null;
   activeMessages: Message[];
+  isLoadingResponse: boolean;
   createChat: () => string;
   setActiveChat: (chatId: string) => void;
   addMessage: (message: Pick<Message, 'content' | 'sender'>) => void;
@@ -392,6 +392,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         chats: state.chats,
         activeChat: state.activeChat,
         activeMessages,
+        isLoadingResponse,
         createChat,
         setActiveChat,
         addMessage,
